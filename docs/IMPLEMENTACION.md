@@ -45,3 +45,12 @@ Los cambios previos del usuario en AGENTS.md y .agents/ se preservan sin incluir
 - Márgenes rápidos, edición de precio inversa y preferencia local de margen.
 - Tipografía del sistema para no depender de descargas externas al compilar/offline.
 - Lint excluye skills vendorizadas y artefactos de prueba.
+
+## PLAN-02 · Consulta EAN
+
+Base: `feat/inventario-local` en `17d7353`.
+Proxy `/api/products?ean=`: regex estricta, timeout de 8 segundos, User-Agent
+requerido, revalidación 24h y DTO limitado a EAN/nombre. Stock y precios nunca
+provienen del proveedor. Se prueba validación, recorte, caché, ausencia y error 429.
+Referencias: [API v3](https://openfoodfacts.github.io/openfoodfacts-server/api/ref-v3/)
+y [ZXing JS](https://github.com/zxing-js/library).
