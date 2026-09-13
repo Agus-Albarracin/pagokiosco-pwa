@@ -1,5 +1,20 @@
 import { test, expect } from "@playwright/test";
 test.beforeEach(async ({ page }) => { await page.addInitScript(() => sessionStorage.setItem("pagokiosco.install-dismissed", "1")); });
+test("producto encontrado abre el alta y evita la caché del contrato anterior", async ({ page }) => {
+  let requestedVersion: string | null = null;
+  await page.route("**/api/products?*", async route => {
+    requestedVersion = new URL(route.request().url()).searchParams.get("version");
+    await route.fulfill({ json: { found: true, ean: "7798113302458", nombre: "Manaos pomelo blanco zero" } });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Escanear", exact: false }).click();
+  await page.getByLabel("Código EAN", { exact: true }).fill("7798113302458");
+  await page.getByRole("button", { name: "Buscar código", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Nuevo producto", exact: true })).toBeVisible();
+  await expect(page.getByLabel("Nombre", { exact: true })).toHaveValue("Manaos pomelo blanco zero");
+  await expect(page.getByLabel("Código de barras")).toHaveValue("7798113302458");
+  expect(requestedVersion).toBe("3");
+});
 test("inventario, venta, importe libre y cierre persisten", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Nuevo producto" }).click();
