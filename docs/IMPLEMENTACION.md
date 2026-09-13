@@ -54,3 +54,10 @@ requerido, revalidación 24h y DTO limitado a EAN/nombre. Stock y precios nunca
 provienen del proveedor. Se prueba validación, recorte, caché, ausencia y error 429.
 Referencias: [API v3](https://openfoodfacts.github.io/openfoodfacts-server/api/ref-v3/)
 y [ZXing JS](https://github.com/zxing-js/library).
+
+### Cámara
+
+- `@zxing/library` se importa al activar cámara; formatos EAN-8/EAN-13.
+- MediaStream tras permiso explícito; reset y stop de pistas al detectar o cerrar.
+- Consulta local primero, luego proxy. Fallo de red permite alta manual.
+- Cancelación de consultas y permisos tardíos al desmontar, sin inserciones nulas.
