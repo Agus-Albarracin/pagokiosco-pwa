@@ -1,0 +1,42 @@
+"use client";
+import { useRef, useState } from "react";
+import { cents, money, type PaymentMethod, type Product } from "@/lib/domain";
+import { checkout } from "@/lib/sales";
+import { useCart } from "./cart-context";
+import { Modal } from "./modal";
+export function Pos({ products, onScan, onRefresh, disabled }: { products: Product[]; onScan: () => void; onRefresh: () => Promise<void>; disabled: boolean }) {
+  const cart = useCart();
+  const [query, setQuery] = useState("");
+  const [amount, setAmount] = useState("");
+  const [keypad, setKeypad] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+  const [method, setMethod] = useState<PaymentMethod>("EFECTIVO");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const lock = useRef(false);
+  const saleId = useRef("");
+  const total = cart.lines.reduce((sum, line) => sum + cents(line.precioVenta) * line.qty, 0) / 100;
+  const filtered = products.filter(p => `${p.nombre} ${p.ean}`.toLowerCase().includes(query.toLowerCase()));
+  async function finish() {
+    if (lock.current) return;
+    lock.current = true; setBusy(true); setError("");
+    try {
+      const sale = await checkout(saleId.current, cart.lines, method);
+      cart.clear(); setConfirm(false); setSuccess(`Venta registrada · ${money(sale.total)} en ${method.toLowerCase()}.`);
+      await onRefresh();
+    } catch (error) { setError(error instanceof Error ? error.message : "No se pudo registrar la venta."); await onRefresh(); }
+    finally { lock.current = false; setBusy(false); }
+  }
+  return <><div className="pos-layout"><section className="panel"><div className="section-head"><h2>Elegí los productos</h2><button onClick={onScan} disabled={disabled}>▥ Escanear</button></div><label className="search-label"><span className="sr-only">Buscar para vender</span><input type="search" placeholder="Buscar producto o código…" value={query} onChange={e => setQuery(e.target.value)} /></label>
+    <div className="quick-grid">{filtered.map(p => <button key={p.ean} className="quick-product" disabled={disabled || p.stock <= (cart.lines.find(l => l.ean === p.ean)?.qty ?? 0)} onClick={() => { cart.add(p); setSuccess(""); }}><span className="quick-code">{p.ean.startsWith("SKU-") ? "SIN CÓDIGO" : "PRODUCTO"}</span><strong>{p.nombre}</strong><span>{money(p.precioVenta)}</span><small>{p.stock > 0 ? `${p.stock} disponibles` : "Sin stock"}</small></button>)}</div>
+    {!filtered.length && <div className="empty"><h3>{query ? "Sin coincidencias" : "Prepará tu mostrador"}</h3><p>{query ? "Probá con otro nombre o código." : "Agregá productos en Inventario o registrá un importe libre."}</p></div>}
+    <button className="amount-button" disabled={disabled} onClick={() => { setAmount(""); setKeypad(true); }}>＋ Agregar importe libre <span>Productos sueltos o a granel</span></button>
+  </section><section className="panel cart-panel"><div className="section-head"><h2>Venta actual</h2><span className="pill">{cart.lines.reduce((n, l) => n + l.qty, 0)} artículos</span></div>
+    {!cart.lines.length ? <div className="empty"><span className="empty-symbol">＋</span><h3>Empezá una nueva venta</h3><p>Los productos que elijas aparecen acá.</p></div> : <ul className="cart-lines">{cart.lines.map(line => <li key={line.ean}><div className="cart-line-title"><span>{line.qty} × {line.nombre}</span><strong>{money(line.precioVenta * line.qty)}</strong></div><div className="quantity"><button aria-label={`Quitar una unidad de ${line.nombre}`} disabled={busy} onClick={() => cart.change(line.ean, -1)}>−</button><span>{line.qty}</span><button aria-label={`Agregar una unidad de ${line.nombre}`} disabled={busy || (!line.custom_amount && line.qty >= (products.find(p => p.ean === line.ean)?.stock ?? 0))} onClick={() => cart.change(line.ean, 1)}>＋</button><small>{money(line.precioVenta)} c/u</small></div></li>)}</ul>}
+    <div className="cart-total"><span>Total</span><strong>{money(total)}</strong></div><button className="primary checkout-button" disabled={busy || disabled || !cart.lines.length} onClick={() => { saleId.current = crypto.randomUUID(); setError(""); setMethod("EFECTIVO"); setConfirm(true); }}>Registrar venta <span>→</span></button><p className="hint cart-hint">Elegí el medio al confirmar. No se realiza ningún cobro.</p>
+  </section></div>{success && <p role="status" className="success">✓ {success}</p>}
+  {keypad && <Modal title="Importe libre" onClose={() => setKeypad(false)}><form className="form-stack" onSubmit={e => { e.preventDefault(); cart.custom(Number(amount)); setKeypad(false); setSuccess(""); }}><label>Importe ($)<input required type="number" min="0.01" max="100000000" step="0.01" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} autoFocus /></label><div className="keypad">{["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "⌫"].map(key => <button type="button" key={key} aria-label={key === "⌫" ? "Borrar último dígito" : key} onClick={() => setAmount(value => key === "⌫" ? value.slice(0, -1) : key === "." && value.includes(".") ? value : (value + key).slice(0, 12))}>{key}</button>)}</div><button className="primary">Agregar al carrito</button></form></Modal>}
+  {confirm && <Modal title="Confirmar venta" onClose={() => { if (!busy) setConfirm(false); }}><div className="form-stack"><div className="confirmation-total">{money(total)}</div><p className="muted">Seleccioná cómo recibiste el pago. Este registro no mueve dinero.</p><div className="two-columns">{(["EFECTIVO", "TRANSFERENCIA"] as const).map(m => <button key={m} disabled={busy} aria-pressed={method === m} className={method === m ? "selected" : ""} onClick={() => setMethod(m)}>{m === "EFECTIVO" ? "Efectivo" : "Transferencia"}</button>)}</div>{error && <p role="alert" className="error">{error}</p>}<button className="primary" disabled={busy} onClick={finish}>{busy ? "Registrando…" : "Confirmar y descontar stock"}</button></div></Modal>}
+  </>;
+}

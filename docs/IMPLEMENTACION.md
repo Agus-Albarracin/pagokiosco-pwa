@@ -61,3 +61,33 @@ y [ZXing JS](https://github.com/zxing-js/library).
 - MediaStream tras permiso explícito; reset y stop de pistas al detectar o cerrar.
 - Consulta local primero, luego proxy. Fallo de red permite alta manual.
 - Cancelación de consultas y permisos tardíos al desmontar, sin inserciones nulas.
+
+## PLAN-03 · Venta y caja
+
+Base: `feat/consulta-ean` en `db30c78`. Checkout transaccional en productos y ventas;
+revalida stock/precio, rechaza líneas repetidas y guarda un identificador idempotente.
+Un fallo revierte todos los descuentos. Los importes libres no modifican catálogo.
+Pruebas: venta concurrente, reintento, rollback, precio cambiado y totales por medio.
+
+### POS
+
+- Carrito global con React Context, conservado al alternar las vistas.
+- Accesos rápidos a SKUs del catálogo y teclado de importes libres.
+- Confirmación explícita EFECTIVO/TRANSFERENCIA y bloqueo de doble envío.
+- El carrito no confirmado vive en memoria; recargar descarta ese borrador.
+
+### Caja y métricas
+
+- Consulta indexada por timestamp Unix, períodos móviles de 24h/7d/30d/365d.
+- Gráfico de siete intervalos, historial y agregación por medio en centavos.
+- Cierre consulta de nuevo el día calendario local; no elimina ni reinicia ventas.
+- Actualización al recuperar foco y cada minuto mientras la caja está abierta.
+
+### Verificación del POS
+
+- Build de producción aprobado. Se quitó BOM UTF-8 de archivos escritos desde
+  PowerShell porque interfería con el procesamiento CSS de Turbopack.
+- Playwright: 4 escenarios aprobados (dos flujos × escritorio/Pixel 7).
+  Se verifica alta, precio, stock tras recarga, dos medios, cierre, período anual,
+  ausencia de overflow y alta manual cuando falla la consulta.
+- Capturas de escritorio/móvil revisadas. Puerto aislado de prueba: 3107.
