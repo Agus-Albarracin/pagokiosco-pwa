@@ -14,7 +14,7 @@ export function ProductForm({ product, initialEan = "", initialName = "", onClos
     try { const saved = localStorage.getItem("app_config.default_margin"); const n = saved === null ? 40 : Number(saved); return Number.isFinite(n) && n >= 0 ? n : 40; } catch { return 40; }
   });
   const [price, setPrice] = useState(product?.precioVenta ?? 0);
-  const [incoming, setIncoming] = useState(0);
+  const [incoming, setIncoming] = useState(initialEan && !product ? 1 : 0);
   const [remember, setRemember] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -31,6 +31,7 @@ export function ProductForm({ product, initialEan = "", initialName = "", onClos
   }
   return <Modal title={product ? "Editar producto" : "Nuevo producto"} onClose={() => { if (!busy) onClose(); }}>
     <form onSubmit={submit} className="form-stack">
+      {!product && initialEan && <p className="hint">{initialName ? "Producto identificado. Revisá el nombre y completá costo, precio y stock." : "El código está listo. Completá el nombre para guardar el producto."}</p>}
       <label>Nombre<input required maxLength={120} value={name} onChange={e => setName(e.target.value)} placeholder="Ej. Alfajor de chocolate" /></label>
       <label>Código de barras <span className="muted">(opcional)</span><input inputMode="numeric" value={ean} disabled={!!product} onChange={e => setEan(e.target.value.trim())} placeholder="Sin código: creamos un SKU interno" /></label>
       <div className="two-columns">
