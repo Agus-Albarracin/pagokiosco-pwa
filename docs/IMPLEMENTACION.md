@@ -37,3 +37,11 @@ Los cambios previos del usuario en AGENTS.md y .agents/ se preservan sin incluir
 - Alta y reposición leen y escriben stock en una única transacción.
 - Se rechazan códigos duplicados y se espera el commit antes de mostrar éxito.
 - Prueba con fake-indexeddb verifica dos ingresos concurrentes sin pérdida de stock.
+
+### Interfaz
+
+- Catálogo con búsqueda, stock bajo y formulario accesible en dialog nativo.
+- Paleta crema/azul de AGENTS.md, controles de 48px y disposición móvil.
+- Márgenes rápidos, edición de precio inversa y preferencia local de margen.
+- Tipografía del sistema para no depender de descargas externas al compilar/offline.
+- Lint excluye skills vendorizadas y artefactos de prueba.
