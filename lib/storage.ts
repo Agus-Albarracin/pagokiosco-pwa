@@ -42,7 +42,7 @@ export async function saveProduct(input: Product, editing: boolean, incoming: nu
   try {
     const store = tx.objectStore("products");
     const current = await requestValue<Product | undefined>(store.get(input.ean));
-    if (!editing && current) throw new Error("Este código ya existe. Editá el producto para ingresar stock.");
+    if (!editing && current) throw new Error("Este código ya existe. Usá Agregar stock para reponer unidades.");
     if (editing && !current) throw new Error("El producto ya no existe.");
     const product: Product = {
       ean: input.ean, nombre: input.nombre.trim(), costo: input.costo, margen: input.margen,
