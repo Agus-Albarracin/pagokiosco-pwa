@@ -54,6 +54,9 @@ cargarse desde **Agregar stock**.
 En el celular, deslizá la navegación hacia ambos lados
 para acceder a **Vender, Catálogo, Agregar stock y Caja**.
 
+El escáner emite un pitido breve al leer un código. Confirma la lectura; el stock
+y las ventas se guardan al confirmar sus formularios. Ver [sonido del escáner](docs/SONIDO-ESCANER.md).
+
 ## Sin conexión e instalación
 
 Abrí la app una vez con internet y esperá **Lista para usar sin conexión**. Desde

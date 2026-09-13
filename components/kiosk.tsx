@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/domain";
 import { listProducts } from "@/lib/storage";
+import { prepareScanSound } from "@/lib/scan-sound";
 import { ProductForm } from "./product-form";
 import { Lookup } from "./lookup";
 import { CartProvider, useCart } from "./cart-context";
@@ -48,7 +49,7 @@ function Workspace() {
 
   const disabled = loading || !!error;
   const heading = headings[view];
-  function scanStock() { setNotice(""); setLookup("stock"); }
+  function scanStock() { prepareScanSound(); setNotice(""); setLookup("stock"); }
   function manualProduct() {
     setLookup(null); setNotice(""); setDraft({ ean: "", name: "" }); setEditor("new");
   }
@@ -70,7 +71,7 @@ function Workspace() {
       </div>
       {notice && <p role="status" className="success">{notice}</p>}
       {error && <div role="alert" className="error">{error}<button onClick={refresh}>Reintentar</button></div>}
-      {view === "venta" && <Pos products={products} onScan={() => setLookup("sale")} onRefresh={refresh} disabled={disabled} />}
+      {view === "venta" && <Pos products={products} onScan={() => { prepareScanSound(); setLookup("sale"); }} onRefresh={refresh} disabled={disabled} />}
       {view === "catalogo" && <Catalog products={products} loading={loading} />}
       {view === "stock" && <StockEntry products={products} disabled={disabled} onScan={scanStock} onManual={manualProduct} onSelect={product => {
         setNotice(""); setReceipt(product);
