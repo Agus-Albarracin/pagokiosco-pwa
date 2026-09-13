@@ -75,3 +75,10 @@ Pruebas: venta concurrente, reintento, rollback, precio cambiado y totales por m
 - Accesos rápidos a SKUs del catálogo y teclado de importes libres.
 - Confirmación explícita EFECTIVO/TRANSFERENCIA y bloqueo de doble envío.
 - El carrito no confirmado vive en memoria; recargar descarta ese borrador.
+
+### Caja y métricas
+
+- Consulta indexada por timestamp Unix, períodos móviles de 24h/7d/30d/365d.
+- Gráfico de siete intervalos, historial y agregación por medio en centavos.
+- Cierre consulta de nuevo el día calendario local; no elimina ni reinicia ventas.
+- Actualización al recuperar foco y cada minuto mientras la caja está abierta.
