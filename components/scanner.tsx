@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { BrowserMultiFormatReader } from "@zxing/library";
+import { playScanSound, prepareScanSound } from "@/lib/scan-sound";
 
 export function Scanner({ onCode, autoStart = false }: {
   onCode: (ean: string) => void; autoStart?: boolean;
@@ -40,6 +41,7 @@ export function Scanner({ onCode, autoStart = false }: {
         const code = result.getText();
         if (!/^\d{8}$|^\d{13}$/.test(code)) return;
         detected = true; stop();
+        playScanSound();
         setBusy(false); setStatus("Código leído.");
         onCodeRef.current(code);
       });
@@ -57,6 +59,7 @@ export function Scanner({ onCode, autoStart = false }: {
   return <div className="scanner">
     <video ref={video} muted playsInline aria-label="Vista de la cámara para escanear" />
     <button type="button" className="primary" disabled={busy} onClick={() => {
+      prepareScanSound();
       setBusy(true); setStatus("Solicitando acceso a la cámara…"); setAttempt(value => value + 1);
     }}>{busy ? "Cámara activa…" : "Activar cámara"}</button>
     <p role="status" className="hint">{status || "Apuntá al código para identificar el producto."}</p>
