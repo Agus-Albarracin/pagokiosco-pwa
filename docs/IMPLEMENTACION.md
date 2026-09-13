@@ -68,3 +68,10 @@ Base: `feat/consulta-ean` en `db30c78`. Checkout transaccional en productos y ve
 revalida stock/precio, rechaza líneas repetidas y guarda un identificador idempotente.
 Un fallo revierte todos los descuentos. Los importes libres no modifican catálogo.
 Pruebas: venta concurrente, reintento, rollback, precio cambiado y totales por medio.
+
+### POS
+
+- Carrito global con React Context, conservado al alternar las vistas.
+- Accesos rápidos a SKUs del catálogo y teclado de importes libres.
+- Confirmación explícita EFECTIVO/TRANSFERENCIA y bloqueo de doble envío.
+- El carrito no confirmado vive en memoria; recargar descarta ese borrador.
