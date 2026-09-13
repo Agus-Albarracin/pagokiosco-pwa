@@ -61,3 +61,10 @@ y [ZXing JS](https://github.com/zxing-js/library).
 - MediaStream tras permiso explícito; reset y stop de pistas al detectar o cerrar.
 - Consulta local primero, luego proxy. Fallo de red permite alta manual.
 - Cancelación de consultas y permisos tardíos al desmontar, sin inserciones nulas.
+
+## PLAN-03 · Venta y caja
+
+Base: `feat/consulta-ean` en `db30c78`. Checkout transaccional en productos y ventas;
+revalida stock/precio, rechaza líneas repetidas y guarda un identificador idempotente.
+Un fallo revierte todos los descuentos. Los importes libres no modifican catálogo.
+Pruebas: venta concurrente, reintento, rollback, precio cambiado y totales por medio.
