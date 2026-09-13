@@ -25,11 +25,12 @@ Depende de PLAN-06 porque reutiliza la consulta de nombres, el escáner y la rep
 
 - Navegación: Vender, Catálogo, Agregar stock y Caja. En móvil admite desplazamiento
   nativo hacia ambos lados; mantiene visible la opción seleccionada.
-- Catálogo: buscador, precios, existencias, indicadores y edición de datos del producto.
-  La edición ya no contiene un campo para ingresar stock.
+- Catálogo: buscador, precios, existencias e indicadores. Solo consulta, sin acciones
+  de alta, edición o reposición, incluso cuando está vacío.
 - Agregar stock: escaneo principal para altas y reposiciones; búsqueda de productos
   existentes y alta sin código como alternativas.
-- Nuevo producto también abre el escáner desde Vender y Catálogo.
+- Altas y edición de datos se concentran en Agregar stock. El escaneo desde Vender
+  agrega productos locales a la venta; un código desconocido indica dónde cargarlo.
 - El carrito se conserva al navegar entre las cuatro secciones.
 
 Verificación: build (incluye TypeScript), lint y 9 pruebas unitarias correctos.
@@ -85,11 +86,27 @@ Incluye decodificación con ZXing desde MediaStream sintético y cierre de cáma
 
 ### Descripción del segundo PR
 
-Separa la consulta y edición de productos en Catálogo, y concentra altas y
-reposiciones en Agregar stock con el escáner como acción principal. La navegación
+Deja Catálogo como consulta de precios y disponibilidad, y concentra altas,
+edición y reposiciones en Agregar stock con el escáner como acción principal. La navegación
 móvil permite deslizar entre Vender, Catálogo, Agregar stock y Caja, conservando
 el carrito al cambiar de sección.
 
 Validación: 9 pruebas unitarias, 19 E2E, lint y build correctos; el gesto móvil se
 omite en escritorio. Capturas revisadas en ambas resoluciones. Pendiente probar
 cámara física y actualización de la PWA tras el despliegue.
+
+## Corrección de alcance de PLAN-07
+
+Se quitaron los atajos Nuevo producto de Vender y Catálogo a pedido del usuario.
+También se retiraron el alta del catálogo vacío y su edición de productos.
+La edición se conserva en los resultados de búsqueda de Agregar stock.
+Vender consulta únicamente los productos locales y, si falta un código, informa
+que debe cargarse desde Agregar stock sin abrir el formulario ni consultar el proveedor.
+El escaneo y autocompletado de nombres continúan en Agregar stock.
+La corrección continúa en la misma rama, sobre el commit previo `2cae684`.
+
+Verificación de la corrección: build y lint correctos. Pasaron 13 E2E en la primera
+ejecución; 6 casos tenían un selector que también coincidía con el título de la
+sección. Se acotó al diálogo y los 6 pasaron al repetirlos. Total: 19 E2E correctos
+y el gesto móvil omitido en escritorio. Se revisó la captura móvil del catálogo
+sin botones de alta ni edición.

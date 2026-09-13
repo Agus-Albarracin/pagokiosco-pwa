@@ -15,7 +15,7 @@ import { WorkspaceNav, type WorkspaceView } from "./workspace-nav";
 
 const headings = {
   venta: { breadcrumb: "Punto de venta", eyebrow: "UN BUEN DÍA PARA VENDER", title: "Tu mostrador", description: "Cada venta, simple. Tu negocio, al día." },
-  catalogo: { breadcrumb: "Catálogo", eyebrow: "TODO EN SU LUGAR", title: "Tu catálogo", description: "Consultá existencias y editá nombres y precios." },
+  catalogo: { breadcrumb: "Catálogo", eyebrow: "TODO EN SU LUGAR", title: "Tu catálogo", description: "Consultá precios y disponibilidad de tus productos." },
   stock: { breadcrumb: "Agregar stock", eyebrow: "MERCADERÍA LISTA PARA VENDER", title: "Agregar stock", description: "Productos nuevos y reposiciones, desde el escáner." },
   caja: { breadcrumb: "Caja y métricas", eyebrow: "LOS NÚMEROS DE TU NEGOCIO", title: "Tu caja, en claro", description: "Revisá ventas, medios de pago y el cierre del día." },
 };
@@ -67,17 +67,14 @@ function Workspace() {
       </header>
       <div className="page-heading">
         <div><p className="eyebrow">{heading.eyebrow}</p><h1>{heading.title}</h1><p className="muted">{heading.description}</p></div>
-        {(view === "venta" || view === "catalogo") && <button className="primary" onClick={scanStock} disabled={disabled}>▥ Nuevo producto</button>}
       </div>
       {notice && <p role="status" className="success">{notice}</p>}
       {error && <div role="alert" className="error">{error}<button onClick={refresh}>Reintentar</button></div>}
       {view === "venta" && <Pos products={products} onScan={() => setLookup("sale")} onRefresh={refresh} disabled={disabled} />}
-      {view === "catalogo" && <Catalog products={products} loading={loading} disabled={disabled} onEdit={product => {
-        setDraft({ ean: "", name: "" }); setEditor(product);
-      }} onCreate={scanStock} />}
+      {view === "catalogo" && <Catalog products={products} loading={loading} />}
       {view === "stock" && <StockEntry products={products} disabled={disabled} onScan={scanStock} onManual={manualProduct} onSelect={product => {
         setNotice(""); setReceipt(product);
-      }} />}
+      }} onEdit={product => { setDraft({ ean: "", name: "" }); setEditor(product); }} />}
       {view === "caja" && <Cashbook />}
       <p className="footer-note">PagoKiosco registra tus operaciones. No procesa pagos.</p>
     </main>
@@ -86,7 +83,7 @@ function Workspace() {
       onSaved={async () => { await refresh(); setNotice(view === "venta" ? "" : editor === "new" ? "Producto agregado al catálogo. Stock inicial guardado." : "Producto actualizado."); }} />}
     {lookup && <Lookup products={products} onClose={() => setLookup(null)}
       onFound={product => { setLookup(null); if (lookup === "sale") cart.add(product); else setReceipt(product); }}
-      onCreate={(ean, name) => { setLookup(null); setDraft({ ean, name }); setEditor("new"); }}
+      onCreate={lookup === "stock" ? (ean, name) => { setLookup(null); setDraft({ ean, name }); setEditor("new"); } : undefined}
       onManual={lookup === "stock" ? manualProduct : undefined} />}
     {receipt && <StockReceipt product={receipt} onClose={() => setReceipt(null)} onSaved={async product => {
       await refresh(); setNotice("Stock actualizado: " + product.nombre + " · " + product.stock + " unidades.");

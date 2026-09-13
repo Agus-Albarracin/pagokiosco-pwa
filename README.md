@@ -28,7 +28,7 @@ no equivale a localhost.
 
 ## Primera venta
 
-1. Entrá en **Agregar stock → Escanear producto** (o **Nuevo producto**).
+1. Entrá en **Agregar stock → Escanear producto**.
    Se abre la cámara con `@zxing/library`. Si el producto está en Open Food Facts,
    el formulario recibe su nombre y código automáticamente.
 2. Elegí un margen (40% inicial) o escribí el precio final. El cálculo desde margen
@@ -46,8 +46,12 @@ no equivale a localhost.
 7. En **Caja**, consultá movimientos, períodos y **Cierre de caja**. El cierre suma
    el día calendario del dispositivo, separa medios y conserva todas las ventas.
 
-**Catálogo** permite consultar productos, precios y existencias, y editar nombre,
-costo, margen y precio. En el celular, deslizá la navegación hacia ambos lados
+**Catálogo** es de solo consulta: muestra productos, precios y disponibilidad.
+Las altas y reposiciones se realizan únicamente en **Agregar stock**; para editar
+nombre, costo, margen o precio, buscá el producto allí y elegí **Editar datos**.
+Si escaneás un producto desconocido en **Vender**, la app indica que primero debe
+cargarse desde **Agregar stock**.
+En el celular, deslizá la navegación hacia ambos lados
 para acceder a **Vender, Catálogo, Agregar stock y Caja**.
 
 ## Sin conexión e instalación

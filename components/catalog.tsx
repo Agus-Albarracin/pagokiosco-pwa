@@ -2,9 +2,8 @@
 import { useState } from "react";
 import { money, type Product } from "@/lib/domain";
 
-export function Catalog({ products, loading, disabled, onEdit, onCreate }: {
-  products: Product[]; loading: boolean; disabled: boolean;
-  onEdit: (product: Product) => void; onCreate: () => void;
+export function Catalog({ products, loading }: {
+  products: Product[]; loading: boolean;
 }) {
   const [query, setQuery] = useState("");
   const filtered = products.filter(product =>
@@ -26,13 +25,11 @@ export function Catalog({ products, loading, disabled, onEdit, onCreate }: {
           <div className="product-name"><strong>{product.nombre}</strong><small>{product.ean.startsWith("SKU-") ? "Sin código de barras" : product.ean}</small></div>
           <span className={product.stock <= 5 ? "stock low" : "stock"}>{product.stock} u.</span>
           <strong>{money(product.precioVenta)}</strong>
-          <button aria-label={"Editar " + product.nombre} disabled={disabled} onClick={() => onEdit(product)}>Editar</button>
         </div>)}</div> :
         <div className="empty">
           <span className="empty-symbol" aria-hidden="true">▦</span>
-          <h3>{query ? "No encontramos ese producto" : "Tu primer producto empieza acá"}</h3>
-          <p>{query ? "Probá con otro nombre o código." : "Escaneá el código y completá su precio para empezar."}</p>
-          {!query && <button onClick={onCreate} disabled={disabled}>▥ Agregar producto</button>}
+          <h3>{query ? "No encontramos ese producto" : "Todavía no hay productos"}</h3>
+          <p>{query ? "Probá con otro nombre o código." : "Los productos que cargues desde Agregar stock aparecerán acá."}</p>
         </div>}
     </section>
   </>;

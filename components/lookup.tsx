@@ -8,7 +8,7 @@ export function Lookup({ products, onClose, onFound, onCreate, onManual }: {
   products: Product[];
   onClose: () => void;
   onFound: (product: Product) => void;
-  onCreate: (ean: string, name: string) => void;
+  onCreate?: (ean: string, name: string) => void;
   onManual?: () => void;
 }) {
   const [ean, setEan] = useState("");
@@ -29,6 +29,10 @@ export function Lookup({ products, onClose, onFound, onCreate, onManual }: {
     if (!/^\d{8}$|^\d{13}$/.test(code)) { setMessage("Ingresá 8 o 13 dígitos."); return; }
     const existing = products.find(product => product.ean === code);
     if (existing) { onFound(existing); return; }
+    if (!onCreate) {
+      setMessage("No está en tu catálogo. Cargalo desde Agregar stock antes de venderlo.");
+      return;
+    }
     pending.current = true; setBusy(true);
     controller.current = new AbortController();
     try {
@@ -56,7 +60,7 @@ export function Lookup({ products, onClose, onFound, onCreate, onManual }: {
 
   return <Modal title={onManual ? "Escanear para agregar stock" : "Escanear producto"} onClose={onClose}>
     <div className="form-stack">
-      <p className="hint">Escaneá el código. Buscamos el nombre en tu catálogo y en Open Food Facts.</p>
+      <p className="hint">{onCreate ? "Escaneá el código. Buscamos el nombre en tu catálogo y en Open Food Facts." : "Escaneá un producto de tu catálogo para sumarlo a la venta."}</p>
       <Scanner autoStart onCode={lookup} />
       <form className="form-stack" onSubmit={(event: FormEvent) => { event.preventDefault(); void lookup(ean); }}>
         <label>Código EAN<input required inputMode="numeric" pattern="[0-9]{8}|[0-9]{13}" value={ean}
@@ -64,9 +68,9 @@ export function Lookup({ products, onClose, onFound, onCreate, onManual }: {
         <button disabled={busy}>{busy ? "Consultando nombre…" : "Buscar código"}</button>
       </form>
       {message && <p role="status" className="hint">{message}</p>}
-      {manual && <button onClick={() => onCreate(ean, "")}>Cargar producto manualmente</button>}
+      {manual && onCreate && <button onClick={() => onCreate(ean, "")}>Cargar producto manualmente</button>}
       {onManual && <button className="quiet" onClick={onManual}>Producto sin código · carga manual</button>}
-      <p className="hint">Confirmá el nombre y el precio antes de guardar.</p>
+      {onCreate && <p className="hint">Confirmá el nombre y el precio antes de guardar.</p>}
     </div>
   </Modal>;
 }

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 test("beforeinstallprompt abre el aviso y ejecuta la instalación", async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem("pagokiosco.install-dismissed", "1"));
   await page.goto("/");
-  await expect(page.getByRole("button", { name: "Nuevo producto" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Escanear", exact: false })).toBeEnabled();
   await page.evaluate(() => {
     sessionStorage.removeItem("pagokiosco.install-dismissed");
     const event = new Event("beforeinstallprompt", { cancelable: true });
@@ -27,12 +27,14 @@ test("recarga, inventario y venta funcionan offline", async ({ page, context }) 
   await page.reload();
   await expect(page.getByRole("heading", { name: "Tu mostrador", exact: true })).toBeVisible();
   await expect(page.locator(".pwa-status")).toContainText("Sin conexión");
-  await page.getByRole("button", { name: "Nuevo producto" }).click();
+  await page.getByRole("button", { name: "Agregar stock", exact: true }).click();
+  await page.getByRole("button", { name: "Escanear producto", exact: true }).click();
   await page.getByRole("button", { name: "Producto sin código · carga manual", exact: true }).click();
   await page.getByLabel("Nombre", { exact: true }).fill("Pan sin conexión");
   await page.getByLabel("Costo ($)", { exact: true }).fill("100");
   await page.getByLabel("Stock inicial").fill("2");
   await page.getByRole("button", { name: "Guardar producto" }).click();
+  await page.getByRole("button", { name: "Vender", exact: true }).click();
   await page.getByRole("button", { name: /SIN CÓDIGO Pan/ }).click();
   await page.getByRole("button", { name: "Registrar venta" }).click();
   await page.getByRole("button", { name: "Confirmar y descontar stock" }).click();
@@ -49,7 +51,8 @@ test("recarga, inventario y venta funcionan offline", async ({ page, context }) 
   await expect(page.locator(".scanner")).toContainText(/No pudimos usar la cámara|Apuntá al código/);
   await page.getByLabel("Código EAN", { exact: true }).fill("12345678");
   await page.getByRole("button", { name: "Buscar código" }).click();
-  await expect(page.getByRole("button", { name: "Cargar producto manualmente" })).toBeVisible();
+  await expect(page.getByRole("dialog")).toContainText("Cargalo desde Agregar stock antes de venderlo.");
+  await expect(page.getByRole("button", { name: "Cargar producto manualmente" })).toHaveCount(0);
 });
 test("el escáner libera el MediaStream al cerrar", async ({ page }) => {
   await page.addInitScript(() => {
@@ -81,7 +84,7 @@ test("ofrece instalación y la suprime en modo standalone", async ({ page }) => 
     window.matchMedia = query => { const result = original(query); if (query.includes("display-mode")) Object.defineProperty(result, "matches", { value: true }); return result; };
   });
   await page.reload();
-  await expect(page.getByRole("button", { name: "Nuevo producto" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Escanear", exact: false })).toBeEnabled();
   await page.evaluate(() => window.dispatchEvent(new Event("beforeinstallprompt", { cancelable: true })));
   await expect(page.getByRole("button", { name: "Instalar app", exact: true })).toHaveCount(0);
   await expect(page.getByRole("dialog")).toHaveCount(0);

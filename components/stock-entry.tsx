@@ -2,9 +2,10 @@
 import { useState } from "react";
 import type { Product } from "@/lib/domain";
 
-export function StockEntry({ products, disabled, onScan, onManual, onSelect }: {
+export function StockEntry({ products, disabled, onScan, onManual, onSelect, onEdit }: {
   products: Product[]; disabled: boolean; onScan: () => void; onManual: () => void;
   onSelect: (product: Product) => void;
+  onEdit: (product: Product) => void;
 }) {
   const [query, setQuery] = useState("");
   const term = query.trim().toLocaleLowerCase();
@@ -31,6 +32,7 @@ export function StockEntry({ products, disabled, onScan, onManual, onSelect }: {
         <div className="product-list">{matches.map(product => <div className="product-row" key={product.ean}>
           <div className="product-name"><strong>{product.nombre}</strong><small>Stock actual: {product.stock} unidades</small></div>
           <button aria-label={"Agregar stock a " + product.nombre} onClick={() => onSelect(product)} disabled={disabled}>Agregar stock</button>
+          <button className="quiet" aria-label={"Editar " + product.nombre} onClick={() => onEdit(product)} disabled={disabled}>Editar datos</button>
         </div>)}</div>
       </> : <p className="hint">También sirve para productos sueltos o sin código de barras.</p>}
     </section>
