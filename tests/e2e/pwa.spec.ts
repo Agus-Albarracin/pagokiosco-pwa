@@ -28,6 +28,7 @@ test("recarga, inventario y venta funcionan offline", async ({ page, context }) 
   await expect(page.getByRole("heading", { name: "Tu mostrador", exact: true })).toBeVisible();
   await expect(page.locator(".pwa-status")).toContainText("Sin conexión");
   await page.getByRole("button", { name: "Nuevo producto" }).click();
+  await page.getByRole("button", { name: "Producto sin código · carga manual", exact: true }).click();
   await page.getByLabel("Nombre", { exact: true }).fill("Pan sin conexión");
   await page.getByLabel("Costo ($)", { exact: true }).fill("100");
   await page.getByLabel("Stock inicial").fill("2");
@@ -45,7 +46,6 @@ test("recarga, inventario y venta funcionan offline", async ({ page, context }) 
   await page.getByRole("button", { name: "Listo", exact: true }).click();
   await page.getByRole("button", { name: "Vender", exact: false }).click();
   await page.getByRole("button", { name: "Escanear", exact: false }).click();
-  await page.getByRole("button", { name: "Activar cámara" }).click();
   await expect(page.locator(".scanner")).toContainText(/No pudimos usar la cámara|Apuntá al código/);
   await page.getByLabel("Código EAN", { exact: true }).fill("12345678");
   await page.getByRole("button", { name: "Buscar código" }).click();
@@ -64,7 +64,6 @@ test("el escáner libera el MediaStream al cerrar", async ({ page }) => {
   });
   await page.goto("/");
   await page.getByRole("button", { name: "Escanear", exact: false }).click();
-  await page.getByRole("button", { name: "Activar cámara" }).click();
   await expect(page.locator(".scanner")).toContainText("Apuntá al código");
   await page.getByRole("button", { name: "Cerrar", exact: true }).click();
   await expect.poll(() => page.evaluate(() => (window as Window & { testStream?: MediaStream }).testStream?.getTracks()[0].readyState)).toBe("ended");

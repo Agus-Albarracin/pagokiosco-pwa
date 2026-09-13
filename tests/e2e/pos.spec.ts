@@ -18,6 +18,7 @@ test("producto encontrado abre el alta y evita la caché del contrato anterior",
 test("inventario, venta, importe libre y cierre persisten", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Nuevo producto" }).click();
+  await page.getByRole("button", { name: "Producto sin código · carga manual", exact: true }).click();
   await page.getByLabel("Nombre", { exact: true }).fill("Alfajor de chocolate");
   await page.getByLabel("Costo ($)", { exact: true }).fill("1000");
   await expect(page.getByLabel("Precio de venta ($)")).toHaveValue("1400");
