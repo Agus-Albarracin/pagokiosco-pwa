@@ -58,6 +58,7 @@ dialog::backdrop { background: #11263d80; }
 .presets { display: flex; gap: 6px; } .presets button { flex: 1; padding: 6px; font-size: 13px; } .presets button[aria-pressed=true] { background: var(--accent); border-color: #8da37f; }
 .check { display: flex; align-items: center; font-weight: 400; font-size: 12px; } .check input { width: 20px; min-height: 20px; }
 .error { padding: 14px; background: #fff0ee; border: 1px solid #edb9af; border-radius: 10px; color: #922f22; font-size: 14px; line-height: 1.6; }
+.scanner { display: grid; gap: 12px; } .scanner video { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #172c43; border-radius: 10px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 @media (max-width: 1000px) { .app-shell { grid-template-columns: 200px minmax(0, 1fr); } main { padding-inline: 24px; } .sidebar { padding-inline: 14px; } .stats article { padding: 18px; } }
 @media (max-width: 700px) {

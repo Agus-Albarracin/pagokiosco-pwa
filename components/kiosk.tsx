@@ -4,12 +4,15 @@ import Link from "next/link";
 import { money, type Product } from "@/lib/domain";
 import { listProducts } from "@/lib/storage";
 import { ProductForm } from "./product-form";
+import { Lookup } from "./lookup";
 export function Kiosk() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [editor, setEditor] = useState<Product | "new" | null>(null);
+  const [lookup, setLookup] = useState(false);
+  const [draft, setDraft] = useState({ ean: "", name: "" });
   const refresh = useCallback(() => listProducts()
     .then(result => { setProducts(result); setError(""); })
     .catch(() => { setError("No pudimos abrir tus datos. Revisá el almacenamiento del navegador y reintentá."); })
@@ -22,9 +25,10 @@ export function Kiosk() {
       <div className="page-heading"><div><p className="eyebrow">TODO EN SU LUGAR</p><h1>Tu inventario</h1><p className="muted">Productos y precios listos para vender.</p></div><button className="primary" onClick={() => setEditor("new")} disabled={loading || !!error}>＋ Nuevo producto</button></div>
       <section className="stats" aria-label="Resumen del inventario"><article><span>Productos</span><strong>{products.length}</strong></article><article><span>Unidades disponibles</span><strong>{products.reduce((sum, p) => sum + p.stock, 0)}</strong></article><article><span>Con stock bajo</span><strong>{products.filter(p => p.stock <= 5).length}</strong><small>5 unidades o menos</small></article></section>
       {error && <div role="alert" className="error">{error}<button onClick={refresh}>Reintentar</button></div>}
-      <section className="panel"><div className="section-head"><h2>Catálogo</h2><span className="muted">{products.length} productos</span></div><label className="search-label"><span className="sr-only">Buscar producto</span><input type="search" placeholder="Buscar por nombre o código…" value={query} onChange={e => setQuery(e.target.value)} /></label>
+      <section className="panel"><div className="section-head"><h2>Catálogo</h2><button onClick={() => setLookup(true)} disabled={loading || !!error}>▥ Escanear código</button></div><label className="search-label"><span className="sr-only">Buscar producto</span><input type="search" placeholder="Buscar por nombre o código…" value={query} onChange={e => setQuery(e.target.value)} /></label>
       {loading ? <p role="status" className="empty">Cargando tu inventario…</p> : filtered.length ? <div className="product-list">{filtered.map(p => <div className="product-row" key={p.ean}><span className="product-avatar">{p.nombre.slice(0, 2).toUpperCase()}</span><div className="product-name"><strong>{p.nombre}</strong><small>{p.ean.startsWith("SKU-") ? "Sin código de barras" : p.ean}</small></div><span className={p.stock <= 5 ? "stock low" : "stock"}>{p.stock} u.</span><strong>{money(p.precioVenta)}</strong><button aria-label={`Editar ${p.nombre}`} onClick={() => setEditor(p)}>Editar</button></div>)}</div> : <div className="empty"><span className="empty-symbol">▦</span><h3>{query ? "No encontramos ese producto" : "Tu primer producto empieza acá"}</h3><p>{query ? "Probá con otro nombre o código." : "Cargá el costo, elegí tu margen y dejá listo el precio."}</p>{!query && <button onClick={() => setEditor("new")} disabled={!!error}>＋ Agregar producto</button>}</div>}
       </section><p className="footer-note">PagoKiosco registra tus operaciones. No procesa pagos.</p>
-    </main>{editor && <ProductForm product={editor === "new" ? undefined : editor} onClose={() => setEditor(null)} onSaved={refresh} />}
+    </main>{editor && <ProductForm product={editor === "new" ? undefined : editor} initialEan={draft.ean} initialName={draft.name} onClose={() => { setEditor(null); setDraft({ ean: "", name: "" }); }} onSaved={refresh} />}
+    {lookup && <Lookup products={products} onClose={() => setLookup(false)} onFound={p => { setLookup(false); setEditor(p); }} onCreate={(ean, name) => { setLookup(false); setDraft({ ean, name }); setEditor("new"); }} />}
   </div>;
 }
