@@ -11,6 +11,7 @@ const eslintConfig = defineConfig([
     ".codex/**",
     "test-results/**",
     "playwright-report/**",
+    "public/sw.js",
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",

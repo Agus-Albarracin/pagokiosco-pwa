@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "node scripts/generate-icons.mjs",
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/build-service-worker.mjs",
     "start": "next start",
     "lint": "eslint",
     "test": "node scripts/test.mjs",

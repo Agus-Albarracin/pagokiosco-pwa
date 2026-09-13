@@ -91,3 +91,23 @@ Pruebas: venta concurrente, reintento, rollback, precio cambiado y totales por m
   Se verifica alta, precio, stock tras recarga, dos medios, cierre, período anual,
   ausencia de overflow y alta manual cuando falla la consulta.
 - Capturas de escritorio/móvil revisadas. Puerto aislado de prueba: 3107.
+
+## PLAN-04 · PWA offline
+
+Base: `feat/venta-caja` en `b49d816`.
+- Manifest fullscreen/portrait con colores requeridos e iconos PNG reproducibles.
+- `prebuild` genera iconos; `postbuild` enumera los chunks reales, incluyendo ZXing.
+- Service worker Cache-First guarda shell y assets de la misma versión de build.
+- No cachea el proxy ni escribe inventario/ventas en Cache Storage.
+- Una actualización espera al cierre de pestañas antes de reemplazar la versión.
+- La primera preparación necesita conexión; IndexedDB continúa siendo la fuente de datos.
+
+### Instalación y validación offline
+
+- Registro SW solo en producción y estado visible de conectividad/preparación.
+- Bottom sheet con `beforeinstallprompt`, alternativa manual y supresión en
+  standalone/fullscreen o tras `appinstalled`.
+- Diálogos conservan foco nativo y bloquean cierre mientras una mutación está pendiente.
+- Playwright comprobó recarga offline, alta, venta, stock persistido, cierre y carga
+  de ZXing sin red; también liberación de MediaStream y supresión de instalación.
+- La cámara real y la instalación en un teléfono físico requieren prueba manual.
