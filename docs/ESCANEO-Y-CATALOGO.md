@@ -51,3 +51,45 @@ Las capturas de Catálogo y Agregar stock se revisaron en escritorio y Pixel 7 e
 6. Revisar las existencias en Catálogo y deslizar la navegación para llegar a Caja.
 
 La cámara física, Safari/iOS y el despliegue no se verificaron en este entorno.
+
+## Publicación manual y PR
+
+Base remota ya integrada: `origin/main` en `483276d`.
+Las dos ramas nuevas están pendientes de push; no hace falta subir las ramas anteriores.
+
+Ejecutar en PowerShell, en este orden (no requiere cambiar de rama):
+
+```powershell
+git -C "C:\Users\Agust\Desktop\pagokiosco" push -u origin feat/alta-por-escaneo
+git -C "C:\Users\Agust\Desktop\pagokiosco" push -u origin feat/catalogo-agregar-stock
+```
+
+| Rama | Base del PR | Título propuesto |
+| --- | --- | --- |
+| `feat/alta-por-escaneo` | `main` | Alta y reposición de productos por escaneo |
+| `feat/catalogo-agregar-stock` | `feat/alta-por-escaneo` | Separar Catálogo y Agregar stock con navegación deslizable |
+
+El segundo PR puede revisarse con esa base para ver solo su cambio. Después de
+integrar el primero, cambiar la base del segundo a `main` y revisar su diff.
+Usar **Create a merge commit** conserva los commits pequeños y la relación entre ramas.
+
+### Descripción del primer PR
+
+Nuevo producto abre la cámara y consulta el nombre antes del alta. Un código ya
+guardado abre una confirmación de unidades; la reposición suma stock de forma
+atómica sin modificar precios. La carga manual sigue disponible si falta el
+producto en el proveedor, no hay red o el artículo no tiene código.
+
+Validación: 9 pruebas unitarias, 16 E2E, lint, TypeScript y build correctos.
+Incluye decodificación con ZXing desde MediaStream sintético y cierre de cámara.
+
+### Descripción del segundo PR
+
+Separa la consulta y edición de productos en Catálogo, y concentra altas y
+reposiciones en Agregar stock con el escáner como acción principal. La navegación
+móvil permite deslizar entre Vender, Catálogo, Agregar stock y Caja, conservando
+el carrito al cambiar de sección.
+
+Validación: 9 pruebas unitarias, 19 E2E, lint y build correctos; el gesto móvil se
+omite en escritorio. Capturas revisadas en ambas resoluciones. Pendiente probar
+cámara física y actualización de la PWA tras el despliegue.

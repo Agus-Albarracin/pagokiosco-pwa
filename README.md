@@ -28,18 +28,27 @@ no equivale a localhost.
 
 ## Primera venta
 
-1. Elegí **Nuevo producto**. Ingresá nombre, costo y stock inicial.
+1. Entrá en **Agregar stock → Escanear producto** (o **Nuevo producto**).
+   Se abre la cámara con `@zxing/library`. Si el producto está en Open Food Facts,
+   el formulario recibe su nombre y código automáticamente.
 2. Elegí un margen (40% inicial) o escribí el precio final. El cálculo desde margen
    redondea hacia arriba a múltiplos de $50. Podés recordar el margen para próximos productos.
-3. Usá un EAN de 8 o 13 dígitos, o dejá vacío el código para generar un SKU interno.
-   **Escanear** usa `@zxing/library`; si el catálogo externo falla, completá el nombre manualmente.
+3. Revisá el nombre sugerido, completá costo y stock inicial y guardá.
+   Si la consulta falla o no hay coincidencia, podés completar el nombre manualmente.
+   Para productos sueltos, **Crear producto sin código** genera un SKU interno.
 4. En **Vender**, tocá productos para agregarlos. **Importe libre** permite registrar
    productos sueltos sin crear registros de inventario.
 5. Revisá cantidades y elegí **Registrar venta**. Seleccioná efectivo o transferencia
    y confirmá. Solo entonces se guarda la venta y se descuenta stock.
-6. En **Inventario → Editar**, ingresá unidades para reponer stock. Se suman al stock actual.
+6. Para reponer, usá **Agregar stock → Escanear producto**. Si ya existe, elegí las
+   unidades y confirmá el ingreso; se suman sin cambiar el nombre ni el precio.
+   También podés buscarlo por nombre en esa sección.
 7. En **Caja**, consultá movimientos, períodos y **Cierre de caja**. El cierre suma
    el día calendario del dispositivo, separa medios y conserva todas las ventas.
+
+**Catálogo** permite consultar productos, precios y existencias, y editar nombre,
+costo, margen y precio. En el celular, deslizá la navegación hacia ambos lados
+para acceder a **Vender, Catálogo, Agregar stock y Caja**.
 
 ## Sin conexión e instalación
 
@@ -81,9 +90,12 @@ npm run test:e2e
 ```
 
 Playwright inicia y cierra su propio servidor en el puerto 3107. Verifica escritorio
-y Pixel 7 emulado. Cinco pruebas de dominio/almacenamiento/proxy y doce escenarios
+y Pixel 7 emulado. Nueve pruebas de dominio/almacenamiento/proxy y 19 ejecuciones
 E2E cubren cálculos, concurrencia, rollback, persistencia, POS, fallback manual,
-offline, cierre de cámara e instalación. Las capturas y trazas quedan en
+offline, cámara, instalación, reposición y navegación táctil. La prueba de gesto
+se omite en escritorio. ZXing decodifica un EAN real dibujado en un MediaStream
+sintético; las respuestas del catálogo externo están controladas en las pruebas.
+Las capturas y trazas quedan en
 `test-results/` y no se versionan.
 
 ## Documentación y entrega
@@ -91,7 +103,9 @@ offline, cierre de cámara e instalación. Las capturas y trazas quedan en
 - [Bitácora y decisiones de implementación](docs/IMPLEMENTACION.md)
 - [Cobertura de reglas y comprobaciones manuales](docs/VERIFICACION.md)
 - [Ramas, commits y publicación manual](docs/ENTREGA.md)
+- [Alta por escaneo, catálogo y entrega de esta mejora](docs/ESCANEO-Y-CATALOGO.md)
 
-La aplicación completa está en `feat/pwa-offline`. Las ramas están apiladas por
-sus dependencias y no se integraron a `master`. Los cambios previos de AGENTS.md y
-las skills en .agents/ se conservaron fuera de los commits de implementación.
+La base de esta mejora es `origin/main` en `483276d`, con el MVP y la corrección
+de Open Food Facts v3 integrados. Las mejoras nuevas están en
+`feat/alta-por-escaneo` y `feat/catalogo-agregar-stock`, pendientes de publicación.
+La guía de esta mejora documenta el orden de los PR y comandos para subirlas.
