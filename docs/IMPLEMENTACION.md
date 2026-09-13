@@ -101,3 +101,13 @@ Base: `feat/venta-caja` en `b49d816`.
 - No cachea el proxy ni escribe inventario/ventas en Cache Storage.
 - Una actualización espera al cierre de pestañas antes de reemplazar la versión.
 - La primera preparación necesita conexión; IndexedDB continúa siendo la fuente de datos.
+
+### Instalación y validación offline
+
+- Registro SW solo en producción y estado visible de conectividad/preparación.
+- Bottom sheet con `beforeinstallprompt`, alternativa manual y supresión en
+  standalone/fullscreen o tras `appinstalled`.
+- Diálogos conservan foco nativo y bloquean cierre mientras una mutación está pendiente.
+- Playwright comprobó recarga offline, alta, venta, stock persistido, cierre y carga
+  de ZXing sin red; también liberación de MediaStream y supresión de instalación.
+- La cámara real y la instalación en un teléfono físico requieren prueba manual.

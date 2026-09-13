@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+test.beforeEach(async ({ page }) => { await page.addInitScript(() => sessionStorage.setItem("pagokiosco.install-dismissed", "1")); });
 test("inventario, venta, importe libre y cierre persisten", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Nuevo producto" }).click();
@@ -12,7 +13,7 @@ test("inventario, venta, importe libre y cierre persisten", async ({ page }, tes
   await page.screenshot({ path: `test-results/pos-${testInfo.project.name}.png`, fullPage: true });
   await page.getByRole("button", { name: "Registrar venta" }).click();
   await page.getByRole("button", { name: "Confirmar y descontar stock" }).click();
-  await expect(page.getByRole("status")).toContainText("Venta registrada");
+  await expect(page.locator(".success")).toContainText("Venta registrada");
   await page.getByRole("button", { name: "Agregar importe libre" }).click();
   await page.getByLabel("Importe ($)").fill("250");
   await page.getByRole("button", { name: "Agregar al carrito" }).click();
