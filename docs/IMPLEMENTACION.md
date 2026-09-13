@@ -30,3 +30,10 @@ Los cambios previos del usuario en AGENTS.md y .agents/ se preservan sin incluir
 - Redondeo comercial a $50, margen inverso con costo cero definido como 0.
 - Totales en centavos para reducir errores de coma flotante.
 - Pruebas de límites y fórmulas mediante node:test y tsx.
+
+### Persistencia
+
+- IndexedDB v1: productos por EAN/SKU y ventas con índice Unix `createdAt`.
+- Alta y reposición leen y escriben stock en una única transacción.
+- Se rechazan códigos duplicados y se espera el commit antes de mostrar éxito.
+- Prueba con fake-indexeddb verifica dos ingresos concurrentes sin pérdida de stock.
