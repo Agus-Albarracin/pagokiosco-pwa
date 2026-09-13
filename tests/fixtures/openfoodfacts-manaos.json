@@ -1,0 +1,8 @@
+{
+  "code": "7798113302458",
+  "errors": [],
+  "product": { "product_name": "Manaos pomelo blanco zero" },
+  "result": { "id": "product_found", "lc_name": "Product found", "name": "Product found" },
+  "status": "success",
+  "warnings": []
+}

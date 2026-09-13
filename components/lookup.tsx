@@ -21,7 +21,8 @@ export function Lookup({ products, onClose, onFound, onCreate }: { products: Pro
     if (existing) { onFound(existing); return; }
     setBusy(true); controller.current = new AbortController();
     try {
-      const response = await fetch(`/api/products?ean=${code}`, { signal: controller.current.signal });
+      // Use a fresh cache key: the old contract could cache valid products as absent.
+      const response = await fetch(`/api/products?ean=${code}&version=3`, { signal: controller.current.signal });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error?.message);
       if (!alive.current || id !== requestId.current) return;
