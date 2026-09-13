@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 :root { --background: #fdfbf7; --foreground: #172c43; --brand: #1a365d; --muted: #657181; --line: #e3e7e9; --accent: #dcefce; }
 @theme inline { --color-background: var(--background); --color-foreground: var(--foreground); --color-brand: var(--brand); --font-sans: Arial, Helvetica, sans-serif; }
 * { box-sizing: border-box; }

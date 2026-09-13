@@ -82,3 +82,12 @@ Pruebas: venta concurrente, reintento, rollback, precio cambiado y totales por m
 - Gráfico de siete intervalos, historial y agregación por medio en centavos.
 - Cierre consulta de nuevo el día calendario local; no elimina ni reinicia ventas.
 - Actualización al recuperar foco y cada minuto mientras la caja está abierta.
+
+### Verificación del POS
+
+- Build de producción aprobado. Se quitó BOM UTF-8 de archivos escritos desde
+  PowerShell porque interfería con el procesamiento CSS de Turbopack.
+- Playwright: 4 escenarios aprobados (dos flujos × escritorio/Pixel 7).
+  Se verifica alta, precio, stock tras recarga, dos medios, cierre, período anual,
+  ausencia de overflow y alta manual cuando falla la consulta.
+- Capturas de escritorio/móvil revisadas. Puerto aislado de prueba: 3107.

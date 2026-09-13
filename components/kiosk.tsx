@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { money, type Product } from "@/lib/domain";
@@ -42,5 +42,3 @@ function Workspace() {
     {lookup && <Lookup products={products} onClose={() => setLookup(false)} onFound={p => { setLookup(false); if (view === "venta") cart.add(p); else setEditor(p); }} onCreate={(ean, name) => { setLookup(false); setDraft({ ean, name }); setEditor("new"); }} />}
   </div>;
 }
-
-
