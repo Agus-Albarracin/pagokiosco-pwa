@@ -20,6 +20,34 @@ pendiente de comprobar en el teléfono después del despliegue.
 
 ## PLAN-07 · Catálogo y navegación
 
-Propuesto: `feat/catalogo-agregar-stock`, dependiente de PLAN-06 por el flujo de escaneo.
-Separar Vender, Catálogo, Agregar stock y Caja. Navegación táctil horizontal en móvil.
-El catálogo permite consultar y editar; Agregar stock concentra altas y reposiciones.
+Rama `feat/catalogo-agregar-stock`, base `feat/alta-por-escaneo` en `8e4fbb6`.
+Depende de PLAN-06 porque reutiliza la consulta de nombres, el escáner y la reposición atómica.
+
+- Navegación: Vender, Catálogo, Agregar stock y Caja. En móvil admite desplazamiento
+  nativo hacia ambos lados; mantiene visible la opción seleccionada.
+- Catálogo: buscador, precios, existencias, indicadores y edición de datos del producto.
+  La edición ya no contiene un campo para ingresar stock.
+- Agregar stock: escaneo principal para altas y reposiciones; búsqueda de productos
+  existentes y alta sin código como alternativas.
+- Nuevo producto también abre el escáner desde Vender y Catálogo.
+- El carrito se conserva al navegar entre las cuatro secciones.
+
+Verificación: build (incluye TypeScript), lint y 9 pruebas unitarias correctos.
+19 E2E correctos; 1 omitido porque el gesto horizontal solo aplica a móvil.
+Se comprobó lectura real de ZXing sobre un fotograma sintético, autocompletado,
+alta desde Agregar stock, reposición local, precios intactos, carrito al navegar,
+persistencia tras recarga, operación offline y desplazamiento táctil en ambos sentidos.
+Las capturas de Catálogo y Agregar stock se revisaron en escritorio y Pixel 7 emulado.
+
+## Probar en el celular
+
+1. Publicar e integrar las ramas en orden y esperar el despliegue HTTPS.
+2. Cerrar todas las pestañas y la PWA anterior; volver a abrir con conexión para
+   activar la nueva versión. No borrar el almacenamiento: ahí están los productos y ventas.
+3. Abrir Agregar stock → Escanear producto y conceder permiso de cámara.
+4. Escanear un producto nuevo. Si existe en Open Food Facts, el alta muestra su
+   nombre sugerido. Completar costo, margen y unidades; guardar.
+5. Escanear el mismo producto: debe abrir la cantidad para reponer, conservando el precio.
+6. Revisar las existencias en Catálogo y deslizar la navegación para llegar a Caja.
+
+La cámara física, Safari/iOS y el despliegue no se verificaron en este entorno.

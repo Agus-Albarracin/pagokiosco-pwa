@@ -38,7 +38,7 @@ test("inventario, venta, importe libre y cierre persisten", async ({ page }, tes
   await page.getByRole("button", { name: "Confirmar y descontar stock" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.reload();
-  await page.getByRole("button", { name: "Inventario" }).click();
+  await page.getByRole("button", { name: "Catálogo", exact: true }).click();
   await expect(page.locator(".product-row")).toContainText("4 u.");
   await page.getByRole("button", { name: "Caja", exact: false }).click();
   await page.getByRole("button", { name: "Cierre de caja", exact: true }).click();

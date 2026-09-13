@@ -41,7 +41,8 @@ export function ProductForm({ product, initialEan = "", initialName = "", onClos
       <div className="presets" aria-label="Márgenes rápidos">{[30, 40, 50, 60, 100].map(n => <button type="button" key={n} aria-pressed={margin === n} onClick={() => { setMargin(n); setPrice(priceFromMargin(cost, n)); }}>{n}%</button>)}</div>
       <label>Precio de venta ($)<input required type="number" min="0.01" max="100000000" step="0.01" value={Number.isFinite(price) ? price : ""} onChange={e => { const n = e.target.valueAsNumber; setPrice(n); setMargin(Number(marginFromPrice(cost, n).toFixed(1))); }} /></label>
       <p className="hint">Con costo y margen redondeamos hacia arriba a $50. Si cambiás el precio, recalculamos el margen.{cost === 0 ? " Con costo cero el margen inverso es 0%." : ""}</p>
-      <label>{product ? `Ingresar unidades · stock actual: ${product.stock}` : "Stock inicial"}<input required type="number" min="0" step="1" value={Number.isFinite(incoming) ? incoming : ""} onChange={e => setIncoming(e.target.valueAsNumber)} /></label>
+      {product ? <p className="hint">Stock actual: {product.stock} unidades. Para reponer, usá la sección Agregar stock.</p> :
+        <label>Stock inicial<input required type="number" min="0" step="1" value={Number.isFinite(incoming) ? incoming : ""} onChange={e => setIncoming(e.target.valueAsNumber)} /></label>}
       <label className="check"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} />Usar este margen para nuevos productos</label>
       {error && <p role="alert" className="error">{error}</p>}
       <button className="primary" disabled={busy}>{busy ? "Guardando…" : `Guardar producto · ${money(price || 0)}`}</button>

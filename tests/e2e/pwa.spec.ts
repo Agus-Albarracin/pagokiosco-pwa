@@ -38,7 +38,7 @@ test("recarga, inventario y venta funcionan offline", async ({ page, context }) 
   await page.getByRole("button", { name: "Confirmar y descontar stock" }).click();
   await expect(page.locator(".success")).toContainText("Venta registrada");
   await page.reload();
-  await page.getByRole("button", { name: "Inventario" }).click();
+  await page.getByRole("button", { name: "Catálogo", exact: true }).click();
   await expect(page.locator(".product-row")).toContainText("1 u.");
   await page.getByRole("button", { name: "Caja", exact: false }).click();
   await page.getByRole("button", { name: "Cierre de caja", exact: true }).click();

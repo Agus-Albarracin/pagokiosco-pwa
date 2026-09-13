@@ -27,7 +27,7 @@ test("Nuevo producto inicia ZXing, carga el nombre y permite reponer sin vender"
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.locator(".cart-lines li")).toHaveCount(0);
   expect(lookups).toBe(1);
-  await page.getByRole("button", { name: "Inventario", exact: false }).click();
+  await page.getByRole("button", { name: "Catálogo", exact: true }).click();
   await expect(page.locator(".product-row")).toHaveCount(1);
   await expect(page.locator(".product-row")).toContainText("5 u.");
   await expect(page.locator(".product-row")).toContainText("1.400");
