@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ScanReader } from "@/lib/scan-reader";
 import { playScanSound, prepareScanSound } from "@/lib/scan-sound";
 import { startScanFrames } from "@/lib/scan-frames";
+import { createScanQualityFeedback, SCAN_GUIDANCE } from "@/lib/scan-quality-feedback";
 
 export function Scanner({ onCode, autoStart = false }: {
   onCode: (ean: string) => void; autoStart?: boolean;
@@ -48,16 +49,21 @@ export function Scanner({ onCode, autoStart = false }: {
       if (!active) { media.getTracks().forEach(track => track.stop()); return; }
       stream = media;
       reader = createScanReader();
-      setStatus("Apuntá al código EAN de 8 o 13 dígitos.");
+      const qualityFeedback = createScanQualityFeedback(element);
+      setStatus(SCAN_GUIDANCE);
       element.srcObject = media;
       // Register before play: even a stream with a single frame can be read.
-      stopFrames = startScanFrames(element, () => {
+      stopFrames = startScanFrames(element, now => {
         if (!active || detected) return;
         let code: string;
         try {
           code = reader!.decode(element).getText();
         } catch (error) {
-          if (isScanMiss(error)) return;
+          if (isScanMiss(error)) {
+            const guidance = qualityFeedback(now);
+            if (guidance) setStatus(guidance);
+            return;
+          }
           throw error;
         }
         if (!/^\d{8}$|^\d{13}$/.test(code)) return;

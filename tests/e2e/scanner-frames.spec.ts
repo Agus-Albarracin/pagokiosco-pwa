@@ -4,7 +4,9 @@ import { useBarcodeCamera as installBarcodeCamera } from "./scanner-camera";
 type CameraWindow = Window & typeof globalThis & {
   testStream?: MediaStream;
   scannerAttempts: number[];
-  showBarcode: () => void;
+  qualityFailures: number;
+  showBarcode: (inverted?: boolean) => void;
+  showScene: (color: string) => void;
 };
 
 async function openScanner(page: Page) {
@@ -48,7 +50,19 @@ async function installChangingCamera(page: Page) {
         context.fillStyle = frame++ % 2 ? "#777" : "#888";
         context.fillRect(0, 0, 2, 2);
       }, 33);
-      state.showBarcode = () => context.putImageData(barcode, 0, 0);
+      state.showScene = color => {
+        context.fillStyle = color;
+        context.fillRect(0, 0, this.width, this.height);
+      };
+      state.showBarcode = (inverted = false) => {
+        const pixels = new ImageData(new Uint8ClampedArray(barcode.data), barcode.width, barcode.height);
+        if (inverted) {
+          for (let index = 0; index < pixels.data.length; index += 4) {
+            for (let channel = 0; channel < 3; channel++) pixels.data[index + channel] = 255 - pixels.data[index + channel];
+          }
+        }
+        context.putImageData(pixels, 0, 0);
+      };
       return stream;
     };
   });
@@ -99,4 +113,55 @@ test("limita los intentos y deja de procesar al cerrar la cámara", async ({ pag
   const countAfterClose = await page.evaluate(() => (window as CameraWindow).scannerAttempts.length);
   await page.waitForTimeout(300);
   expect(await page.evaluate(() => (window as CameraWindow).scannerAttempts.length)).toBe(countAfterClose);
+});
+
+test("orienta ante poca luz y continúa leyendo cuando aparece el código", async ({ page }) => {
+  await installChangingCamera(page);
+  await page.route("**/api/products?*", route => route.fulfill({
+    json: { found: true, ean: "7798113302458", nombre: "Manaos pomelo blanco zero" },
+  }));
+  await openScanner(page);
+  await expect.poll(() => page.evaluate(() => (window as CameraWindow).scannerAttempts.length)).toBeGreaterThanOrEqual(1);
+  await page.evaluate(() => (window as CameraWindow).showScene("#000"));
+  await expect(page.locator(".scanner [role=status]")).toHaveText("Buscá más luz para ver el código.");
+  await page.evaluate(() => (window as CameraWindow).showBarcode());
+  await expect(page.getByLabel("Nombre", { exact: true })).toHaveValue("Manaos pomelo blanco zero");
+  await expectCameraStopped(page);
+});
+
+test("un fallo del análisis de calidad no interrumpe la lectura de ZXing", async ({ page }) => {
+  await installChangingCamera(page);
+  await page.addInitScript(() => {
+    const state = window as CameraWindow;
+    state.qualityFailures = 0;
+    const getImageData = CanvasRenderingContext2D.prototype.getImageData;
+    CanvasRenderingContext2D.prototype.getImageData = function (...args: Parameters<typeof getImageData>) {
+      if (this.canvas.width <= 160) {
+        state.qualityFailures++;
+        throw new Error("Synthetic quality sample failure");
+      }
+      return Reflect.apply(getImageData, this, args);
+    };
+  });
+  await page.route("**/api/products?*", route => route.fulfill({
+    json: { found: true, ean: "7798113302458", nombre: "Manaos pomelo blanco zero" },
+  }));
+  await openScanner(page);
+  await expect.poll(() => page.evaluate(() => (window as CameraWindow).qualityFailures)).toBeGreaterThanOrEqual(1);
+  await page.evaluate(() => (window as CameraWindow).showBarcode());
+  await expect(page.getByLabel("Nombre", { exact: true })).toHaveValue("Manaos pomelo blanco zero");
+  await expectCameraStopped(page);
+});
+
+test("conserva la lectura de un EAN con barras claras sobre fondo oscuro", async ({ page }) => {
+  await installChangingCamera(page);
+  await page.route("**/api/products?*", route => {
+    expect(new URL(route.request().url()).searchParams.get("ean")).toBe("7798113302458");
+    return route.fulfill({ json: { found: true, ean: "7798113302458", nombre: "Manaos pomelo blanco zero" } });
+  });
+  await openScanner(page);
+  await expect.poll(() => page.evaluate(() => (window as CameraWindow).scannerAttempts.length)).toBeGreaterThanOrEqual(1);
+  await page.evaluate(() => (window as CameraWindow).showBarcode(true));
+  await expect(page.getByLabel("Nombre", { exact: true })).toHaveValue("Manaos pomelo blanco zero");
+  await expectCameraStopped(page);
 });
