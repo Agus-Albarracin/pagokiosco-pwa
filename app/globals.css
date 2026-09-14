@@ -59,7 +59,6 @@ dialog::backdrop { background: #11263d80; }
 .presets { display: flex; gap: 6px; } .presets button { flex: 1; padding: 6px; font-size: 13px; } .presets button[aria-pressed=true] { background: var(--accent); border-color: #8da37f; }
 .check { display: flex; align-items: center; font-weight: 400; font-size: 12px; } .check input { width: 20px; min-height: 20px; }
 .error { padding: 14px; background: #fff0ee; border: 1px solid #edb9af; border-radius: 10px; color: #922f22; font-size: 14px; line-height: 1.6; }
-.scanner { display: grid; gap: 12px; } .scanner video { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #172c43; border-radius: 10px; }
 .pos-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(300px, 1fr); align-items: start; gap: 24px; }
 .quick-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .quick-product { display: flex; flex-direction: column; gap: 10px; text-align: left; padding: 18px; min-height: 160px; overflow-wrap: anywhere; }
@@ -75,11 +74,6 @@ dialog::backdrop { background: #11263d80; }
 .confirmation-total { font-size: 40px; font-weight: 700; text-align: center; padding: 16px 0; } button.selected { background: var(--accent); border-color: #708f5b; }
 .success { margin-top: 20px; padding: 16px; border-radius: 10px; background: #edf5e8; color: #305c22; }
 .stock-entry { display: grid; gap: 24px; max-width: 760px; }
-.scan-entry { display: grid; justify-items: center; gap: 16px; text-align: center; padding: 32px; background: #f3f7ef; }
-.scan-entry p { margin: 0; max-width: 470px; line-height: 1.6; }
-.scan-entry h2 { font-size: 23px; }
-.scan-entry > button { width: min(100%, 360px); }
-.scan-symbol { display: grid; place-items: center; width: 64px; height: 64px; background: white; border: 1px solid var(--line); border-radius: 16px; color: var(--brand); font-size: 36px; }
 .stock-search-description { margin: 12px 0 20px; font-size: 14px; line-height: 1.6; }
 .metrics-summary { display: grid; gap: 8px; margin-bottom: 24px; } .metrics-summary strong { font-size: 32px; } .metrics-summary span { color: var(--muted); font-size: 13px; }
 .bar-chart { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; margin: 28px 0 18px; } .bar-column { text-align: center; display: grid; gap: 12px; font-size: 11px; color: var(--muted); } .bar-track { height: 140px; display: flex; align-items: flex-end; justify-content: center; } .bar-track > div { width: 65%; background: var(--brand); border-radius: 5px 5px 0 0; } .bar-value { font-size: 10px; overflow-wrap: anywhere; }

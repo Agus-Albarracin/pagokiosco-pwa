@@ -1,11 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { useBarcodeCamera } from "./scanner-camera";
 
 test("catálogo y reposición separados conservan precios y carrito al navegar", async ({ page }, testInfo) => {
-  await useBarcodeCamera(page);
-  await page.route("**/api/products?*", route => route.fulfill({
-    json: { found: true, ean: "7798113302458", nombre: "Manaos pomelo blanco zero" },
-  }));
+  await page.addInitScript(() => sessionStorage.setItem("pagokiosco.install-dismissed", "1"));
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "Principal" });
   await expect(nav.getByRole("button")).toHaveText(["＋ Vender", "▦ Catálogo", "▥ Agregar stock", "↗ Caja"]);
@@ -13,14 +9,12 @@ test("catálogo y reposición separados conservan precios y carrito al navegar",
   await nav.getByRole("button", { name: "Catálogo", exact: true }).click();
   await expect(page.locator("main button")).toHaveCount(0);
   await nav.getByRole("button", { name: "Vender", exact: true }).click();
-  await page.getByRole("button", { name: "Escanear", exact: false }).click();
-  await expect(page.getByRole("dialog")).toContainText("Cargalo desde Agregar stock antes de venderlo.");
-  await expect(page.getByRole("button", { name: /Cargar producto|Producto sin código/ })).toHaveCount(0);
-  await page.getByRole("button", { name: "Cerrar", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Escanear|Crear producto/ })).toHaveCount(0);
   await nav.getByRole("button", { name: "Agregar stock", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Agregar stock", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Escanear producto", exact: true }).click();
-  await expect(page.getByLabel("Nombre", { exact: true })).toHaveValue("Manaos pomelo blanco zero");
+  await page.getByRole("button", { name: "Crear producto", exact: true }).click();
+  await page.getByLabel("Nombre", { exact: true }).fill("Manaos pomelo blanco zero");
+  await page.getByLabel("Marca", { exact: false }).fill("Manaos");
   await page.getByLabel("Costo ($)", { exact: true }).fill("1000");
   await page.getByLabel("Stock inicial").fill("3");
   await page.getByRole("button", { name: "Guardar producto" }).click();

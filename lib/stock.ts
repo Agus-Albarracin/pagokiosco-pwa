@@ -10,7 +10,7 @@ export async function addStock(ean: string, units: number): Promise<Product> {
   try {
     const store = tx.objectStore("products");
     const current = await requestValue<Product | undefined>(store.get(ean));
-    if (!current) throw new Error("El producto ya no está en el catálogo. Volvé a escanearlo.");
+    if (!current) throw new Error("El producto ya no está en el catálogo. Volvé a buscarlo.");
     const updated = { ...current, stock: current.stock + units, updatedAt: new Date().toISOString() };
     validateProduct(updated);
     store.put(updated);
