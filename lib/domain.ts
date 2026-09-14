@@ -1,5 +1,5 @@
 export type Product = {
-  ean: string; nombre: string; costo: number; margen: number;
+  ean: string; nombre: string; marca?: string; costo: number; margen: number;
   precioVenta: number; stock: number; updatedAt: string;
 };
 export type CartLine = { ean: string; nombre: string; precioVenta: number; qty: number; custom_amount?: true };
@@ -11,6 +11,7 @@ export const marginFromPrice = (cost: number, price: number) => cost > 0 ? (pric
 export const cents = (value: number) => Math.round(value * 100);
 export function validateProduct(product: Product) {
   if (!product.ean.trim() || !product.nombre.trim() || product.nombre.length > 120) throw new Error("Ingresá un nombre y un código válidos.");
+  if (product.marca !== undefined && (typeof product.marca !== "string" || product.marca.length > 80)) throw new Error("La marca debe tener hasta 80 caracteres.");
   if (![product.costo, product.margen, product.precioVenta, product.stock].every(Number.isFinite)) throw new Error("Revisá los valores numéricos.");
   if (product.costo < 0 || product.margen < 0 || product.precioVenta <= 0 || product.stock < 0 || !Number.isSafeInteger(product.stock)) throw new Error("Precio positivo, costo y margen no negativos, y stock entero son obligatorios.");
   if (product.precioVenta > 100_000_000 || product.costo > 100_000_000) throw new Error("El importe supera el máximo admitido.");
