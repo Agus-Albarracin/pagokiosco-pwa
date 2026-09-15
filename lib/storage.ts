@@ -2,14 +2,17 @@ import { validateProduct, type Product } from "./domain";
 
 export function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open("pagokiosco", 1);
+    const request = indexedDB.open("pagokiosco", 2);
     request.onupgradeneeded = () => {
       const db = request.result;
-      db.createObjectStore("products", { keyPath: "ean" });
-      const sales = db.createObjectStore("sales", { keyPath: "id" });
-      sales.createIndex("createdAt", "createdAt");
+      if (!db.objectStoreNames.contains("products")) db.createObjectStore("products", { keyPath: "ean" });
+      if (!db.objectStoreNames.contains("sales")) {
+        const sales = db.createObjectStore("sales", { keyPath: "id" });
+        sales.createIndex("createdAt", "createdAt");
+      }
+      if (!db.objectStoreNames.contains("waste")) db.createObjectStore("waste", { keyPath: "id" });
     };
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => { request.result.onversionchange = () => request.result.close(); resolve(request.result); };
     request.onerror = () => reject(new Error("No se pudo abrir el almacenamiento local."));
     request.onblocked = () => reject(new Error("Cerrá otras pestañas de PagoKiosco y volvé a intentar."));
   });
@@ -44,7 +47,10 @@ export async function saveProduct(input: Product, editing: boolean, incoming: nu
     const current = await requestValue<Product | undefined>(store.get(input.ean));
     if (!editing && current) throw new Error("Este código ya existe. Usá Agregar stock para reponer unidades.");
     if (editing && !current) throw new Error("El producto ya no existe.");
+    const unidadVenta = input.unidadVenta ?? current?.unidadVenta ?? "unidad";
+    if (current && unidadVenta !== (current.unidadVenta ?? "unidad")) throw new Error("No se puede cambiar el tipo de venta de un producto existente.");
     const product: Product = {
+      unidadVenta,
       ean: input.ean, nombre: input.nombre.trim(), marca: input.marca?.trim() ?? current?.marca ?? "", costo: input.costo, margen: input.margen,
       precioVenta: input.precioVenta, stock: (current?.stock ?? 0) + incoming, updatedAt: new Date().toISOString(),
     };

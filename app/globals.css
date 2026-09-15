@@ -68,6 +68,10 @@ dialog::backdrop { background: #11263d80; }
 .cart-lines { padding: 0; list-style: none; margin: 0; } .cart-lines li { padding: 18px 0; border-bottom: 1px solid var(--line); }
 .cart-line-title { display: flex; justify-content: space-between; gap: 14px; line-height: 1.5; } .cart-line-title span { overflow-wrap: anywhere; } .cart-line-title strong { white-space: nowrap; }
 .quantity { display: flex; align-items: center; gap: 12px; margin-top: 12px; } .quantity button { width: 48px; padding: 8px; } .quantity small { font-size: 11px; color: var(--muted); margin-left: auto; }
+.weight-quantity { flex-wrap: wrap; } .weight-quantity button { width: auto; }
+.form-stack fieldset { min-width: 0; border: 0; padding: 0; margin: 0; }
+.form-stack legend { margin-bottom: 8px; font-weight: 600; }
+.form-stack fieldset button[aria-pressed=true] { background: var(--accent); border-color: #708f5b; }
 .cart-total { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 26px 0; } .cart-total strong { font-size: 30px; letter-spacing: -1px; }
 .checkout-button { display: flex; justify-content: space-between; width: 100%; } .cart-hint { margin-top: 14px; text-align: center; }
 .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .keypad button { min-height: 56px; font-size: 22px; }

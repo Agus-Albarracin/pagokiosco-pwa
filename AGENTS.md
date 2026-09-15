@@ -1,4 +1,4 @@
-# Technical Business Rules Spec: PagoKiosco PWA (v2.1)
+# Technical Business Rules Spec: PagoKiosco PWA (v2.2)
 
 ## Contexto del Sistema
 * **Proyecto:** PagoKiosco - PWA Mobile-First para gestión de inventario y punto de venta (POS) en microcomercios.
@@ -19,7 +19,7 @@
 ## RN-02: Catálogo local y esquema mínimo
 * **RN-02.1 (Fuente de datos):** IndexedDB es la fuente del catálogo de cada dispositivo. Las búsquedas y altas no consultan servicios externos ni requieren conexión. Una base en la nube y la sincronización entre dispositivos quedan fuera del alcance actual.
 * **RN-02.2 (Resultados):** Los resultados muestran nombre, marca si existe, precio y disponibilidad. No se inventan datos de productos ausentes ni se guardan resultados vacíos.
-* **RN-02.3 (Esquema mínimo):** `{ ean: String, nombre: String, marca?: String, costo: Number, margen: Number, precioVenta: Number, stock: Number, updatedAt: ISOString }`. `marca` es opcional y admite hasta 80 caracteres. Los registros anteriores sin marca siguen siendo válidos y buscables. No se almacenan imágenes, nutrición ni alérgenos.
+* **RN-02.3 (Esquema mínimo):** `{ ean: String, nombre: String, marca?: String, unidadVenta?: 'unidad' | 'peso', costo: Number, margen: Number, precioVenta: Number, stock: Number, updatedAt: ISOString }`. `marca` es opcional y admite hasta 80 caracteres. Los registros anteriores sin marca siguen siendo válidos y buscables. La ausencia de `unidadVenta` significa venta por unidad. No se almacenan imágenes, nutrición ni alérgenos.
 
 ## RN-03: Gestión de Inventario y Local-First Persistence
 * **RN-03.1 (Mutation Payload):** El formulario de alta/edición exigirá estrictamente los siguientes atributos del DTO: `nombre`, `costo`, `margen`, `stock`[cite: 3, 4].
@@ -61,3 +61,11 @@
     "background_color": "#fdfbf7"
   }
   ```
+
+## RN-07: Productos vendidos por peso y merma
+* **RN-07.1 (Alta):** Solo Agregar stock crea productos. Se elige venta por unidad o por peso; el tipo no se modifica después del alta para evitar reinterpretar existencias y ventas previas. Los productos existentes siguen siendo por unidad.
+* **RN-07.2 (Medidas):** En productos por peso, costo y precioVenta son importes por kilo. El alta y la reposición aceptan kilos con hasta tres decimales; el stock se persiste en gramos enteros. Ejemplo: 8,250 kg = 8250 g. No se permiten cantidades negativas ni fracciones de gramo.
+* **RN-07.3 (Venta):** La búsqueda local abre un selector con 100, 200 y 300 g y entrada exacta en gramos desde una balanza independiente. El carrito permite corregir peso o quitar el producto. No hay integración electrónica con la balanza. Se valida el stock nuevamente al confirmar y se descuenta atómicamente.
+* **RN-07.4 (Importes):** El redondeo comercial de RN-04.4 se aplica al precio por kilo calculado desde costo y margen. Cada subtotal se calcula como `round(precioKgEnCentavos * gramos / 1000)` y el total suma esos subtotales en centavos. No se aplica redondeo de $50 a las porciones. Las líneas de venta conservan el tipo de venta y el precio por kilo; las líneas históricas sin tipo representan unidades.
+* **RN-07.5 (Merma):** Agregar stock permite registrar gramos descartados, motivo obligatorio (hasta 120 caracteres) y fecha para productos por peso. La transacción descuenta stock y guarda el registro en `waste` de IndexedDB v2 de forma atómica e idempotente por ID. No genera ventas ni altera ingresos de caja. No admite superar el stock disponible.
+* **RN-07.6 (Disponibilidad y compatibilidad):** El catálogo distingue unidades y kilos, sin sumarlos. Se considera stock bajo hasta 5 unidades o 500 g. IndexedDB v2 incorpora `waste` y conserva `products`, `sales` y sus identificadores. No hay sincronización externa ni dependencia de internet.

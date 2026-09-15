@@ -1,6 +1,6 @@
 "use client";
 import { useState, type FormEvent } from "react";
-import { marginFromPrice, money, priceFromMargin, type Product } from "@/lib/domain";
+import { kilogramsToGrams, quantityLabel, marginFromPrice, money, priceFromMargin, type Product, type SaleUnit } from "@/lib/domain";
 import { saveProduct } from "@/lib/storage";
 import { Modal } from "./modal";
 export function ProductForm({ product, onClose, onSaved }: {
@@ -8,6 +8,8 @@ export function ProductForm({ product, onClose, onSaved }: {
 }) {
   const [name, setName] = useState(product?.nombre ?? "");
   const [brand, setBrand] = useState(product?.marca ?? "");
+  const [unit, setUnit] = useState<SaleUnit>(product?.unidadVenta ?? "unidad");
+  const weighted = unit === "peso";
   const [cost, setCost] = useState(product?.costo ?? 0);
   const [margin, setMargin] = useState(() => {
     if (product) return product.margen;
@@ -22,7 +24,7 @@ export function ProductForm({ product, onClose, onSaved }: {
     event.preventDefault(); if (busy) return;
     setBusy(true); setError("");
     try {
-      await saveProduct({ ean: product?.ean ?? `SKU-${crypto.randomUUID()}`, nombre: name, marca: brand, costo: cost, margen: margin, precioVenta: price, stock: product?.stock ?? 0, updatedAt: "" }, !!product, incoming);
+      await saveProduct({ ean: product?.ean ?? `SKU-${crypto.randomUUID()}`, nombre: name, marca: brand, unidadVenta: unit, costo: cost, margen: margin, precioVenta: price, stock: product?.stock ?? 0, updatedAt: "" }, !!product, weighted ? kilogramsToGrams(incoming) : incoming);
       if (remember) { try { localStorage.setItem("app_config.default_margin", String(margin)); } catch { /* Product remains saved if preferences are unavailable. */ } }
       await onSaved(); onClose();
     } catch (error) { setError(error instanceof Error ? error.message : "No se pudo guardar."); }
@@ -32,15 +34,16 @@ export function ProductForm({ product, onClose, onSaved }: {
     <form onSubmit={submit} className="form-stack">
       <label>Nombre<input required maxLength={120} value={name} onChange={e => setName(e.target.value)} placeholder="Ej. Alfajor de chocolate" /></label>
       <label>Marca <span className="muted">(opcional)</span><input maxLength={80} value={brand} onChange={e => setBrand(e.target.value)} placeholder="Ej. Águila" /></label>
+      {product ? <p className="hint">Venta por {weighted ? "peso · precios por kilo" : "unidad"}. El tipo de venta se conserva.</p> : <fieldset><legend>Tipo de venta</legend><div className="two-columns">{(["unidad", "peso"] as const).map(value => <button key={value} type="button" aria-pressed={unit === value} onClick={() => { setUnit(value); setIncoming(0); }}>{value === "peso" ? "Por peso (kg)" : "Por unidad"}</button>)}</div></fieldset>}
       <div className="two-columns">
-        <label>Costo ($)<input required type="number" min="0" max="100000000" step="0.01" value={Number.isFinite(cost) ? cost : ""} onChange={e => { const n = e.target.valueAsNumber; setCost(n); setPrice(priceFromMargin(n, margin)); }} /></label>
+        <label>{weighted ? "Costo por kg ($)" : "Costo ($)"}<input required type="number" min="0" max="100000000" step="0.01" value={Number.isFinite(cost) ? cost : ""} onChange={e => { const n = e.target.valueAsNumber; setCost(n); setPrice(priceFromMargin(n, margin)); }} /></label>
         <label>Margen (%)<input required type="number" min="0" step="0.1" value={Number.isFinite(margin) ? Number(margin.toFixed(1)) : ""} onChange={e => { const n = e.target.valueAsNumber; setMargin(n); setPrice(priceFromMargin(cost, n)); }} /></label>
       </div>
       <div className="presets" aria-label="Márgenes rápidos">{[30, 40, 50, 60, 100].map(n => <button type="button" key={n} aria-pressed={margin === n} onClick={() => { setMargin(n); setPrice(priceFromMargin(cost, n)); }}>{n}%</button>)}</div>
-      <label>Precio de venta ($)<input required type="number" min="0.01" max="100000000" step="0.01" value={Number.isFinite(price) ? price : ""} onChange={e => { const n = e.target.valueAsNumber; setPrice(n); setMargin(Number(marginFromPrice(cost, n).toFixed(1))); }} /></label>
+      <label>{weighted ? "Precio de venta por kg ($)" : "Precio de venta ($)"}<input required type="number" min="0.01" max="100000000" step="0.01" value={Number.isFinite(price) ? price : ""} onChange={e => { const n = e.target.valueAsNumber; setPrice(n); setMargin(Number(marginFromPrice(cost, n).toFixed(1))); }} /></label>
       <p className="hint">Con costo y margen redondeamos hacia arriba a $50. Si cambiás el precio, recalculamos el margen.{cost === 0 ? " Con costo cero el margen inverso es 0%." : ""}</p>
-      {product ? <p className="hint">Stock actual: {product.stock} unidades. Para reponer, usá la sección Agregar stock.</p> :
-        <label>Stock inicial<input required type="number" min="0" step="1" value={Number.isFinite(incoming) ? incoming : ""} onChange={e => setIncoming(e.target.valueAsNumber)} /></label>}
+      {product ? <p className="hint">Stock actual: {quantityLabel(product.stock, product)}. Para reponer, usá la sección Agregar stock.</p> :
+        <label>{weighted ? "Stock inicial (kg)" : "Stock inicial"}<input required type="number" min="0" step={weighted ? "0.001" : "1"} inputMode="decimal" value={Number.isFinite(incoming) ? incoming : ""} onChange={e => setIncoming(e.target.valueAsNumber)} /></label>}
       <label className="check"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} />Usar este margen para nuevos productos</label>
       {error && <p role="alert" className="error">{error}</p>}
       <button className="primary" disabled={busy}>{busy ? "Guardando…" : `Guardar producto · ${money(price || 0)}`}</button>

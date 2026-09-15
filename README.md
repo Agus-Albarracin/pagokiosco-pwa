@@ -39,7 +39,7 @@ no equivale a localhost.
 5. Revisá cantidades y elegí **Registrar venta**. Seleccioná efectivo o transferencia
    y confirmá. Solo entonces se guarda la venta y se descuenta stock.
 6. Para reponer, buscá el producto en **Agregar stock**, elegí **Agregar stock**
-   en el resultado y confirmá las unidades; se suman sin cambiar el nombre, marca o precio.
+   en el resultado y confirmá las unidades o kilos; se suman sin cambiar el nombre, marca o precio.
 7. En **Caja**, consultá movimientos, períodos y **Cierre de caja**. El cierre suma
    el día calendario del dispositivo, separa medios y conserva todas las ventas.
 
@@ -66,12 +66,12 @@ anterior y volver a abrir la aplicación con conexión.
 
 ## Datos y límites del MVP
 
-- IndexedDB del navegador guarda productos y ventas. No hay cuentas ni sincronización,
+- IndexedDB del navegador guarda productos, ventas y mermas. No hay cuentas ni sincronización,
   copias de seguridad automáticas o recuperación entre dispositivos. Borrar datos del
   sitio elimina los registros. Se recomienda un dispositivo habitual para el comercio.
 - El carrito sin confirmar está en memoria: cambiar de vista lo conserva; recargar lo descarta.
-- Stock por unidades enteras, sin lotes, devoluciones ni fraccionamiento por peso.
-  Para venta por peso, ingresá el importe final como importe libre.
+- Stock por unidades enteras o gramos, con ingreso en kilos y venta por peso exacto.
+  No incluye lotes ni devoluciones; la balanza se lee manualmente.
 - El cierre es una consulta consolidada del día; no crea turnos ni borra movimientos.
 - Horarios y días dependen del reloj y zona horaria del dispositivo.
 - Costo cero admite precio manual; el margen inverso se define en 0% para evitar división por cero.
@@ -95,8 +95,7 @@ Playwright inicia y cierra su propio servidor en el puerto 3107. Verifica escrit
 y Pixel 7 emulado. Las pruebas cubren cálculos, concurrencia, rollback,
 persistencia, búsqueda local por marca y nombre, POS, offline, instalación,
 reposición y navegación táctil. La prueba de gesto se omite en escritorio.
-Las verificaciones de esta modificación están pendientes de ejecución;
-ver el estado y las decisiones en [Búsqueda local](docs/BUSQUEDA-LOCAL.md).
+El estado de las verificaciones actuales está en [Venta por peso](docs/VENTA-POR-PESO.md).
 Las capturas y trazas quedan en
 `test-results/` y no se versionan.
 
@@ -106,6 +105,10 @@ Las capturas y trazas quedan en
 - [Búsqueda local: implementación, comprobaciones y entrega](docs/BUSQUEDA-LOCAL.md)
 - [Bitácora histórica de implementación](docs/IMPLEMENTACION.md)
 
-La rama de esta modificación es `feat/busqueda-marca-producto`, sobre
-`perf/fotogramas-escaneo` (`ff879c9`). Las guías anteriores del scanner describen
+La rama de esta modificación es `feat/venta-por-peso`, sobre
+`feat/busqueda-marca-producto` (`9e2600c`). Las guías anteriores del scanner describen
 funciones retiradas y no son instrucciones de uso de la versión actual.
+
+## Venta por peso
+
+Fiambres y otros productos pueden ingresarse por kilo y venderse en gramos, con precios por kg, botones de 100/200/300 g, peso exacto y registro de merma. Los productos existentes siguen siendo por unidad. Ver [guía de venta por peso](docs/VENTA-POR-PESO.md) y las reglas RN-07 de [AGENTS.md](AGENTS.md).
