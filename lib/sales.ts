@@ -1,9 +1,11 @@
-import { cents, type CartLine, type PaymentMethod, type Product, type Sale } from "./domain";
+import { cents, isWeight, lineCents, type CartLine, type PaymentMethod, type Product, type Sale } from "./domain";
 import { openDatabase, requestValue, transactionDone } from "./storage";
 export async function checkout(id: string, lines: CartLine[], method: PaymentMethod): Promise<Sale> {
   if (!id || !lines.length || !["EFECTIVO", "TRANSFERENCIA"].includes(method)) throw new Error("Elegí productos y un medio de pago.");
   if (new Set(lines.map(line => line.ean)).size !== lines.length) throw new Error("El carrito contiene códigos repetidos.");
   for (const line of lines) {
+    if (line.unidadVenta !== undefined && !["unidad", "peso"].includes(line.unidadVenta)) throw new Error("Tipo de venta inválido.");
+    if (line.custom_amount && isWeight(line)) throw new Error("Un importe libre no admite peso.");
     if (!Number.isSafeInteger(line.qty) || line.qty <= 0 || !Number.isFinite(line.precioVenta) || line.precioVenta <= 0 || line.precioVenta > 100_000_000) throw new Error("Revisá las cantidades y los importes.");
   }
   const db = await openDatabase();
@@ -23,11 +25,12 @@ export async function checkout(id: string, lines: CartLine[], method: PaymentMet
       }
       const product = await requestValue<Product | undefined>(products.get(line.ean));
       if (!product || product.stock < line.qty) throw new Error(`Stock insuficiente de ${line.nombre}. Revisá el carrito.`);
+      if (isWeight(product) !== isWeight(line)) throw new Error("El tipo de venta no coincide con el producto.");
       if (cents(product.precioVenta) !== cents(line.precioVenta)) throw new Error(`Cambió el precio de ${product.nombre}. Quitalo y volvé a agregarlo.`);
       products.put({ ...product, stock: product.stock - line.qty, updatedAt: new Date().toISOString() });
-      confirmed.push({ ean: product.ean, nombre: product.nombre, precioVenta: product.precioVenta, qty: line.qty });
+      confirmed.push({ ean: product.ean, nombre: product.nombre, precioVenta: product.precioVenta, qty: line.qty, unidadVenta: product.unidadVenta ?? "unidad" });
     }
-    const totalCents = confirmed.reduce((sum, line) => sum + cents(line.precioVenta) * line.qty, 0);
+    const totalCents = confirmed.reduce((sum, line) => sum + lineCents(line), 0);
     if (!Number.isSafeInteger(totalCents) || totalCents <= 0) throw new Error("El total no es válido.");
     const sale: Sale = { id, createdAt: Date.now(), method, lines: confirmed, total: totalCents / 100 };
     sales.add(sale);
