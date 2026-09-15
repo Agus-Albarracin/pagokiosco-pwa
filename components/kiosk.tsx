@@ -1,13 +1,14 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import type { Product } from "@/lib/domain";
+import { quantityLabel, type Product } from "@/lib/domain";
 import { listProducts } from "@/lib/storage";
 import { ProductForm } from "./product-form";
 import { CartProvider } from "./cart-context";
 import { Pos } from "./pos";
 import { Cashbook } from "./cashbook";
 import { StockReceipt } from "./stock-receipt";
+import { WasteForm } from "./waste-form";
 import { Catalog } from "./catalog";
 import { StockEntry } from "./stock-entry";
 import { WorkspaceNav, type WorkspaceView } from "./workspace-nav";
@@ -30,6 +31,7 @@ function Workspace() {
   const [error, setError] = useState("");
   const [editor, setEditor] = useState<Product | "new" | null>(null);
   const [receipt, setReceipt] = useState<Product | null>(null);
+  const [waste, setWaste] = useState<Product | null>(null);
   const [notice, setNotice] = useState("");
   const refresh = useCallback(() => listProducts()
     .then(result => { setProducts(result); setError(""); })
@@ -66,15 +68,16 @@ function Workspace() {
       {view === "catalogo" && <Catalog products={products} loading={loading} />}
       {view === "stock" && <StockEntry products={products} disabled={disabled} onCreate={() => { setNotice(""); setEditor("new"); }} onSelect={product => {
         setNotice(""); setReceipt(product);
-      }} onEdit={product => setEditor(product)} />}
+      }} onEdit={product => setEditor(product)} onWaste={product => { setNotice(""); setWaste(product); }} />}
       {view === "caja" && <Cashbook />}
       <p className="footer-note">PagoKiosco registra tus operaciones. No procesa pagos.</p>
     </main>
     {editor && <ProductForm product={editor === "new" ? undefined : editor}
       onClose={() => setEditor(null)}
       onSaved={async () => { await refresh(); setNotice(view === "venta" ? "" : editor === "new" ? "Producto agregado al catálogo. Stock inicial guardado." : "Producto actualizado."); }} />}
+    {waste && <WasteForm product={waste} onClose={() => setWaste(null)} onSaved={async product => { await refresh(); setNotice("Merma registrada: " + product.nombre + " · Stock: " + quantityLabel(product.stock, product)); }} />}
     {receipt && <StockReceipt product={receipt} onClose={() => setReceipt(null)} onSaved={async product => {
-      await refresh(); setNotice("Stock actualizado: " + product.nombre + " · " + product.stock + " unidades.");
+      await refresh(); setNotice("Stock actualizado: " + product.nombre + " · " + quantityLabel(product.stock, product) + ".");
     }} />}
   </div>;
 }

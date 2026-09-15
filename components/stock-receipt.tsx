@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, type FormEvent } from "react";
-import { money, type Product } from "@/lib/domain";
+import { isWeight, kilogramsToGrams, quantityLabel, money, type Product } from "@/lib/domain";
 import { addStock } from "@/lib/stock";
 import { Modal } from "./modal";
 
@@ -16,7 +16,7 @@ export function StockReceipt({ product, onClose, onSaved }: {
     if (lock.current) return;
     lock.current = true; setBusy(true); setError("");
     try {
-      const updated = await addStock(product.ean, units);
+      const updated = await addStock(product.ean, isWeight(product) ? kilogramsToGrams(units) : units);
       await onSaved(updated); onClose();
     } catch (error) {
       setError(error instanceof Error ? error.message : "No se pudo agregar stock.");
@@ -24,8 +24,8 @@ export function StockReceipt({ product, onClose, onSaved }: {
   }
   return <Modal title="Agregar stock" onClose={() => { if (!busy) onClose(); }}>
     <form className="form-stack" onSubmit={submit}>
-      <div><h3>{product.nombre}</h3><p className="muted">{product.stock} unidades disponibles · {money(product.precioVenta)} c/u</p></div>
-      <label>Unidades a agregar<input autoFocus required type="number" min="1" step="1" value={Number.isFinite(units) ? units : ""} onChange={event => setUnits(event.target.valueAsNumber)} /></label>
+      <div><h3>{product.nombre}</h3><p className="muted">{quantityLabel(product.stock, product)} disponibles · {money(product.precioVenta)} {isWeight(product) ? "/kg" : "c/u"}</p></div>
+      <label>{isWeight(product) ? "Kilos a agregar" : "Unidades a agregar"}<input autoFocus required type="number" min={isWeight(product) ? "0.001" : "1"} step={isWeight(product) ? "0.001" : "1"} inputMode="decimal" value={Number.isFinite(units) ? units : ""} onChange={event => setUnits(event.target.valueAsNumber)} /></label>
       <p className="hint">Se suman al stock actual. El nombre, el costo y el precio se conservan.</p>
       {error && <p className="error" role="alert">{error}</p>}
       <button className="primary" disabled={busy}>{busy ? "Guardando…" : "Confirmar ingreso"}</button>

@@ -1,15 +1,15 @@
 "use client";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { type CartLine, type Product } from "@/lib/domain";
-type Cart = { lines: CartLine[]; add: (p: Product) => void; custom: (amount: number) => void; change: (ean: string, delta: number) => void; clear: () => void };
+type Cart = { lines: CartLine[]; add: (p: Product, qty?: number) => void; custom: (amount: number) => void; change: (ean: string, delta: number) => void; clear: () => void };
 const Context = createContext<Cart | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
-  function add(p: Product) {
+  function add(p: Product, qty = 1) {
     setLines(current => {
       const existing = current.find(line => line.ean === p.ean);
-      if ((existing?.qty ?? 0) >= p.stock) return current;
-      return existing ? current.map(line => line.ean === p.ean ? { ...line, qty: line.qty + 1 } : line) : [...current, { ean: p.ean, nombre: p.nombre, precioVenta: p.precioVenta, qty: 1 }];
+      if (!Number.isSafeInteger(qty) || qty <= 0 || (existing?.qty ?? 0) + qty > p.stock) return current;
+      return existing ? current.map(line => line.ean === p.ean ? { ...line, qty: line.qty + qty } : line) : [...current, { ean: p.ean, nombre: p.nombre, precioVenta: p.precioVenta, unidadVenta: p.unidadVenta, qty }];
     });
   }
   return <Context.Provider value={{ lines, add,
