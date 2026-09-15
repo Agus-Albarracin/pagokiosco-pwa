@@ -3,18 +3,18 @@ import { useState, type FormEvent } from "react";
 import { marginFromPrice, money, priceFromMargin, type Product } from "@/lib/domain";
 import { saveProduct } from "@/lib/storage";
 import { Modal } from "./modal";
-export function ProductForm({ product, initialEan = "", initialName = "", onClose, onSaved }: {
-  product?: Product; initialEan?: string; initialName?: string; onClose: () => void; onSaved: () => Promise<void>;
+export function ProductForm({ product, onClose, onSaved }: {
+  product?: Product; onClose: () => void; onSaved: () => Promise<void>;
 }) {
-  const [name, setName] = useState(product?.nombre ?? initialName);
-  const [ean, setEan] = useState(product?.ean ?? initialEan);
+  const [name, setName] = useState(product?.nombre ?? "");
+  const [brand, setBrand] = useState(product?.marca ?? "");
   const [cost, setCost] = useState(product?.costo ?? 0);
   const [margin, setMargin] = useState(() => {
     if (product) return product.margen;
     try { const saved = localStorage.getItem("app_config.default_margin"); const n = saved === null ? 40 : Number(saved); return Number.isFinite(n) && n >= 0 ? n : 40; } catch { return 40; }
   });
   const [price, setPrice] = useState(product?.precioVenta ?? 0);
-  const [incoming, setIncoming] = useState(initialEan && !product ? 1 : 0);
+  const [incoming, setIncoming] = useState(0);
   const [remember, setRemember] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -22,8 +22,7 @@ export function ProductForm({ product, initialEan = "", initialName = "", onClos
     event.preventDefault(); if (busy) return;
     setBusy(true); setError("");
     try {
-      if (ean && !/^\d{8}$|^\d{13}$|^SKU-[\w-]+$/.test(ean)) throw new Error("Usá un EAN de 8 o 13 dígitos, o dejá el código vacío.");
-      await saveProduct({ ean: ean || `SKU-${crypto.randomUUID()}`, nombre: name, costo: cost, margen: margin, precioVenta: price, stock: product?.stock ?? 0, updatedAt: "" }, !!product, incoming);
+      await saveProduct({ ean: product?.ean ?? `SKU-${crypto.randomUUID()}`, nombre: name, marca: brand, costo: cost, margen: margin, precioVenta: price, stock: product?.stock ?? 0, updatedAt: "" }, !!product, incoming);
       if (remember) { try { localStorage.setItem("app_config.default_margin", String(margin)); } catch { /* Product remains saved if preferences are unavailable. */ } }
       await onSaved(); onClose();
     } catch (error) { setError(error instanceof Error ? error.message : "No se pudo guardar."); }
@@ -31,9 +30,8 @@ export function ProductForm({ product, initialEan = "", initialName = "", onClos
   }
   return <Modal title={product ? "Editar producto" : "Nuevo producto"} onClose={() => { if (!busy) onClose(); }}>
     <form onSubmit={submit} className="form-stack">
-      {!product && initialEan && <p className="hint">{initialName ? "Producto identificado. Revisá el nombre y completá costo, precio y stock." : "El código está listo. Completá el nombre para guardar el producto."}</p>}
       <label>Nombre<input required maxLength={120} value={name} onChange={e => setName(e.target.value)} placeholder="Ej. Alfajor de chocolate" /></label>
-      <label>Código de barras <span className="muted">(opcional)</span><input inputMode="numeric" value={ean} disabled={!!product} onChange={e => setEan(e.target.value.trim())} placeholder="Sin código: creamos un SKU interno" /></label>
+      <label>Marca <span className="muted">(opcional)</span><input maxLength={80} value={brand} onChange={e => setBrand(e.target.value)} placeholder="Ej. Águila" /></label>
       <div className="two-columns">
         <label>Costo ($)<input required type="number" min="0" max="100000000" step="0.01" value={Number.isFinite(cost) ? cost : ""} onChange={e => { const n = e.target.valueAsNumber; setCost(n); setPrice(priceFromMargin(n, margin)); }} /></label>
         <label>Margen (%)<input required type="number" min="0" step="0.1" value={Number.isFinite(margin) ? Number(margin.toFixed(1)) : ""} onChange={e => { const n = e.target.valueAsNumber; setMargin(n); setPrice(priceFromMargin(cost, n)); }} /></label>

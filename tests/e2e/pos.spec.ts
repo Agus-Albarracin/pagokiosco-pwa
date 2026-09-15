@@ -1,26 +1,9 @@
 import { test, expect } from "@playwright/test";
 test.beforeEach(async ({ page }) => { await page.addInitScript(() => sessionStorage.setItem("pagokiosco.install-dismissed", "1")); });
-test("producto encontrado abre el alta y evita la caché del contrato anterior", async ({ page }) => {
-  let requestedVersion: string | null = null;
-  await page.route("**/api/products?*", async route => {
-    requestedVersion = new URL(route.request().url()).searchParams.get("version");
-    await route.fulfill({ json: { found: true, ean: "7798113302458", nombre: "Manaos pomelo blanco zero" } });
-  });
-  await page.goto("/");
-  await page.getByRole("button", { name: "Agregar stock", exact: true }).click();
-  await page.getByRole("button", { name: "Escanear producto", exact: true }).click();
-  await page.getByLabel("Código EAN", { exact: true }).fill("7798113302458");
-  await page.getByRole("button", { name: "Buscar código", exact: true }).click();
-  await expect(page.getByRole("dialog", { name: "Nuevo producto", exact: true })).toBeVisible();
-  await expect(page.getByLabel("Nombre", { exact: true })).toHaveValue("Manaos pomelo blanco zero");
-  await expect(page.getByRole("dialog").getByLabel("Código de barras")).toHaveValue("7798113302458");
-  expect(requestedVersion).toBe("3");
-});
 test("inventario, venta, importe libre y cierre persisten", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Agregar stock", exact: true }).click();
-  await page.getByRole("button", { name: "Escanear producto", exact: true }).click();
-  await page.getByRole("button", { name: "Producto sin código · carga manual", exact: true }).click();
+  await page.getByRole("button", { name: "Crear producto", exact: true }).click();
   await page.getByLabel("Nombre", { exact: true }).fill("Alfajor de chocolate");
   await page.getByLabel("Costo ($)", { exact: true }).fill("1000");
   await expect(page.getByLabel("Precio de venta ($)")).toHaveValue("1400");
@@ -28,7 +11,7 @@ test("inventario, venta, importe libre y cierre persisten", async ({ page }, tes
   await page.getByRole("button", { name: "Guardar producto" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: "Vender", exact: true }).click();
-  await page.getByRole("button", { name: /SIN CÓDIGO Alfajor/ }).click();
+  await page.getByRole("button", { name: /Alfajor de chocolate/ }).click();
   await page.screenshot({ path: `test-results/pos-${testInfo.project.name}.png`, fullPage: true });
   await page.getByRole("button", { name: "Registrar venta" }).click();
   await page.getByRole("button", { name: "Confirmar y descontar stock" }).click();
@@ -53,15 +36,12 @@ test("inventario, venta, importe libre y cierre persisten", async ({ page }, tes
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflow).toBe(false);
 });
-test("consulta sin red permite alta manual y cerrar el diálogo", async ({ page }) => {
-  await page.route("**/api/products?*", route => route.abort());
+test("alta local no requiere código y permite cerrar el diálogo", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Agregar stock", exact: true }).click();
-  await page.getByRole("button", { name: "Escanear producto", exact: true }).click();
-  await page.getByLabel("Código EAN", { exact: true }).fill("7791234567898");
-  await page.getByRole("button", { name: "Buscar código" }).click();
-  await page.getByRole("button", { name: "Cargar producto manualmente" }).click();
-  await expect(page.getByRole("dialog").getByLabel("Código de barras")).toHaveValue("7791234567898");
+  await page.getByRole("button", { name: "Crear producto", exact: true }).click();
+  await expect(page.getByRole("dialog").getByLabel("Nombre", { exact: true })).toBeVisible();
+  await expect(page.getByRole("dialog").getByLabel(/Código/)).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });

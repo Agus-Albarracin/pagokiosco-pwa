@@ -3,10 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/domain";
 import { listProducts } from "@/lib/storage";
-import { prepareScanSound } from "@/lib/scan-sound";
 import { ProductForm } from "./product-form";
-import { Lookup } from "./lookup";
-import { CartProvider, useCart } from "./cart-context";
+import { CartProvider } from "./cart-context";
 import { Pos } from "./pos";
 import { Cashbook } from "./cashbook";
 import { StockReceipt } from "./stock-receipt";
@@ -17,7 +15,7 @@ import { WorkspaceNav, type WorkspaceView } from "./workspace-nav";
 const headings = {
   venta: { breadcrumb: "Punto de venta", eyebrow: "UN BUEN DÍA PARA VENDER", title: "Tu mostrador", description: "Cada venta, simple. Tu negocio, al día." },
   catalogo: { breadcrumb: "Catálogo", eyebrow: "TODO EN SU LUGAR", title: "Tu catálogo", description: "Consultá precios y disponibilidad de tus productos." },
-  stock: { breadcrumb: "Agregar stock", eyebrow: "MERCADERÍA LISTA PARA VENDER", title: "Agregar stock", description: "Productos nuevos y reposiciones, desde el escáner." },
+  stock: { breadcrumb: "Agregar stock", eyebrow: "MERCADERÍA LISTA PARA VENDER", title: "Agregar stock", description: "Buscá por marca o producto para reponer mercadería." },
   caja: { breadcrumb: "Caja y métricas", eyebrow: "LOS NÚMEROS DE TU NEGOCIO", title: "Tu caja, en claro", description: "Revisá ventas, medios de pago y el cierre del día." },
 };
 
@@ -26,16 +24,13 @@ export function Kiosk() {
 }
 
 function Workspace() {
-  const cart = useCart();
   const [view, setView] = useState<WorkspaceView>("venta");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editor, setEditor] = useState<Product | "new" | null>(null);
-  const [lookup, setLookup] = useState<"sale" | "stock" | null>(null);
   const [receipt, setReceipt] = useState<Product | null>(null);
   const [notice, setNotice] = useState("");
-  const [draft, setDraft] = useState({ ean: "", name: "" });
   const refresh = useCallback(() => listProducts()
     .then(result => { setProducts(result); setError(""); })
     .catch(() => { setError("No pudimos abrir tus datos. Revisá el almacenamiento del navegador y reintentá."); })
@@ -49,10 +44,6 @@ function Workspace() {
 
   const disabled = loading || !!error;
   const heading = headings[view];
-  function scanStock() { prepareScanSound(); setNotice(""); setLookup("stock"); }
-  function manualProduct() {
-    setLookup(null); setNotice(""); setDraft({ ean: "", name: "" }); setEditor("new");
-  }
 
   return <div className="app-shell">
     <aside className="sidebar">
@@ -71,21 +62,17 @@ function Workspace() {
       </div>
       {notice && <p role="status" className="success">{notice}</p>}
       {error && <div role="alert" className="error">{error}<button onClick={refresh}>Reintentar</button></div>}
-      {view === "venta" && <Pos products={products} onScan={() => { prepareScanSound(); setLookup("sale"); }} onRefresh={refresh} disabled={disabled} />}
+      {view === "venta" && <Pos products={products} onRefresh={refresh} disabled={disabled} />}
       {view === "catalogo" && <Catalog products={products} loading={loading} />}
-      {view === "stock" && <StockEntry products={products} disabled={disabled} onScan={scanStock} onManual={manualProduct} onSelect={product => {
+      {view === "stock" && <StockEntry products={products} disabled={disabled} onCreate={() => { setNotice(""); setEditor("new"); }} onSelect={product => {
         setNotice(""); setReceipt(product);
-      }} onEdit={product => { setDraft({ ean: "", name: "" }); setEditor(product); }} />}
+      }} onEdit={product => setEditor(product)} />}
       {view === "caja" && <Cashbook />}
       <p className="footer-note">PagoKiosco registra tus operaciones. No procesa pagos.</p>
     </main>
-    {editor && <ProductForm product={editor === "new" ? undefined : editor} initialEan={draft.ean} initialName={draft.name}
-      onClose={() => { setEditor(null); setDraft({ ean: "", name: "" }); }}
+    {editor && <ProductForm product={editor === "new" ? undefined : editor}
+      onClose={() => setEditor(null)}
       onSaved={async () => { await refresh(); setNotice(view === "venta" ? "" : editor === "new" ? "Producto agregado al catálogo. Stock inicial guardado." : "Producto actualizado."); }} />}
-    {lookup && <Lookup products={products} onClose={() => setLookup(null)}
-      onFound={product => { setLookup(null); if (lookup === "sale") cart.add(product); else setReceipt(product); }}
-      onCreate={lookup === "stock" ? (ean, name) => { setLookup(null); setDraft({ ean, name }); setEditor("new"); } : undefined}
-      onManual={lookup === "stock" ? manualProduct : undefined} />}
     {receipt && <StockReceipt product={receipt} onClose={() => setReceipt(null)} onSaved={async product => {
       await refresh(); setNotice("Stock actualizado: " + product.nombre + " · " + product.stock + " unidades.");
     }} />}

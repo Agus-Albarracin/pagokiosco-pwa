@@ -45,7 +45,7 @@ export async function saveProduct(input: Product, editing: boolean, incoming: nu
     if (!editing && current) throw new Error("Este código ya existe. Usá Agregar stock para reponer unidades.");
     if (editing && !current) throw new Error("El producto ya no existe.");
     const product: Product = {
-      ean: input.ean, nombre: input.nombre.trim(), costo: input.costo, margen: input.margen,
+      ean: input.ean, nombre: input.nombre.trim(), marca: input.marca?.trim() ?? current?.marca ?? "", costo: input.costo, margen: input.margen,
       precioVenta: input.precioVenta, stock: (current?.stock ?? 0) + incoming, updatedAt: new Date().toISOString(),
     };
     validateProduct(product);

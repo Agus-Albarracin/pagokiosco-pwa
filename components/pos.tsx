@@ -1,10 +1,11 @@
 "use client";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { createProductSearch } from "@/lib/product-search";
 import { cents, money, type PaymentMethod, type Product } from "@/lib/domain";
 import { checkout } from "@/lib/sales";
 import { useCart } from "./cart-context";
 import { Modal } from "./modal";
-export function Pos({ products, onScan, onRefresh, disabled }: { products: Product[]; onScan: () => void; onRefresh: () => Promise<void>; disabled: boolean }) {
+export function Pos({ products, onRefresh, disabled }: { products: Product[]; onRefresh: () => Promise<void>; disabled: boolean }) {
   const cart = useCart();
   const [query, setQuery] = useState("");
   const [amount, setAmount] = useState("");
@@ -17,7 +18,8 @@ export function Pos({ products, onScan, onRefresh, disabled }: { products: Produ
   const lock = useRef(false);
   const saleId = useRef("");
   const total = cart.lines.reduce((sum, line) => sum + cents(line.precioVenta) * line.qty, 0) / 100;
-  const filtered = products.filter(p => `${p.nombre} ${p.ean}`.toLowerCase().includes(query.toLowerCase()));
+  const search = useMemo(() => createProductSearch(products), [products]);
+  const filtered = search(query);
   async function finish() {
     if (lock.current) return;
     lock.current = true; setBusy(true); setError("");
@@ -28,9 +30,9 @@ export function Pos({ products, onScan, onRefresh, disabled }: { products: Produ
     } catch (error) { setError(error instanceof Error ? error.message : "No se pudo registrar la venta."); await onRefresh(); }
     finally { lock.current = false; setBusy(false); }
   }
-  return <><div className="pos-layout"><section className="panel"><div className="section-head"><h2>Elegí los productos</h2><button onClick={onScan} disabled={disabled}>▥ Escanear</button></div><label className="search-label"><span className="sr-only">Buscar para vender</span><input type="search" placeholder="Buscar producto o código…" value={query} onChange={e => setQuery(e.target.value)} /></label>
-    <div className="quick-grid">{filtered.map(p => <button key={p.ean} className="quick-product" disabled={disabled || p.stock <= (cart.lines.find(l => l.ean === p.ean)?.qty ?? 0)} onClick={() => { cart.add(p); setSuccess(""); }}><span className="quick-code">{p.ean.startsWith("SKU-") ? "SIN CÓDIGO" : "PRODUCTO"}</span><strong>{p.nombre}</strong><span>{money(p.precioVenta)}</span><small>{p.stock > 0 ? `${p.stock} disponibles` : "Sin stock"}</small></button>)}</div>
-    {!filtered.length && <div className="empty"><h3>{query ? "Sin coincidencias" : "Prepará tu mostrador"}</h3><p>{query ? "Probá con otro nombre o código." : "Cargá tus productos desde Agregar stock o registrá un importe libre."}</p></div>}
+  return <><div className="pos-layout"><section className="panel"><div className="section-head"><h2>Elegí los productos</h2></div><label className="search-label"><span>Buscar para vender</span><input type="search" placeholder="Buscar por marca o producto…" value={query} onChange={e => setQuery(e.target.value)} disabled={disabled} /></label>
+    <div className="quick-grid">{filtered.map(p => <button key={p.ean} className="quick-product" disabled={disabled || p.stock <= (cart.lines.find(l => l.ean === p.ean)?.qty ?? 0)} onClick={() => { cart.add(p); setSuccess(""); }}><span className="quick-code">{p.marca || "PRODUCTO"}</span><strong>{p.nombre}</strong><span>{money(p.precioVenta)}</span><small>{p.stock > 0 ? `${p.stock} disponibles` : "Sin stock"}</small></button>)}</div>
+    {!filtered.length && <div className="empty"><h3>{query ? "Sin coincidencias" : "Prepará tu mostrador"}</h3><p>{query ? "Probá con otra marca o nombre. Las altas se hacen desde Agregar stock." : "Cargá tus productos desde Agregar stock o registrá un importe libre."}</p></div>}
     <button className="amount-button" disabled={disabled} onClick={() => { setAmount(""); setKeypad(true); }}>＋ Agregar importe libre <span>Productos sueltos o a granel</span></button>
   </section><section className="panel cart-panel"><div className="section-head"><h2>Venta actual</h2><span className="pill">{cart.lines.reduce((n, l) => n + l.qty, 0)} artículos</span></div>
     {!cart.lines.length ? <div className="empty"><span className="empty-symbol">＋</span><h3>Empezá una nueva venta</h3><p>Los productos que elijas aparecen acá.</p></div> : <ul className="cart-lines">{cart.lines.map(line => <li key={line.ean}><div className="cart-line-title"><span>{line.qty} × {line.nombre}</span><strong>{money(line.precioVenta * line.qty)}</strong></div><div className="quantity"><button aria-label={`Quitar una unidad de ${line.nombre}`} disabled={busy} onClick={() => cart.change(line.ean, -1)}>−</button><span>{line.qty}</span><button aria-label={`Agregar una unidad de ${line.nombre}`} disabled={busy || (!line.custom_amount && line.qty >= (products.find(p => p.ean === line.ean)?.stock ?? 0))} onClick={() => cart.change(line.ean, 1)}>＋</button><small>{money(line.precioVenta)} c/u</small></div></li>)}</ul>}
