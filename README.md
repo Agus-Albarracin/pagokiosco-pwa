@@ -145,8 +145,6 @@ Las capturas y trazas quedan en
 - [Arquitectura por funcionalidades](docs/architecture/FEATURE-ARCH-TARGET.md)
 - [Cobertura y verificación](docs/VERIFICACION.md)
 
-Documentación histórica de la etapa inicial: [bitácora](docs/IMPLEMENTACION.md).
-
 ## Venta por peso
 
 Fiambres y otros productos pueden ingresarse por kilo y venderse en gramos, con precios por kg, botones de 100/200/300 g, peso exacto y registro de merma. Los productos existentes siguen siendo por unidad. Ver [guía de venta por peso](docs/VENTA-POR-PESO.md) y las reglas RN-07 de [AGENTS.md](AGENTS.md).
