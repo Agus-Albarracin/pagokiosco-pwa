@@ -13,7 +13,9 @@ test("marca y nombre se buscan sin tildes y persisten al reponer y editar", asyn
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByLabel("Buscar producto para reponer").fill("AGUI cafe");
   await expect(page.locator(".product-row")).toHaveCount(1);
-  await page.getByRole("button", { name: "Agregar stock a Café molido 250 g", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Agregar stock a Café molido 250 g", exact: true })
+    .click();
   await page.getByLabel("Unidades a agregar").fill("3");
   await page.getByRole("button", { name: "Confirmar ingreso" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);

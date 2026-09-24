@@ -1,2 +1,4 @@
-import { Kiosk } from "@/components/kiosk";
-export default function Home() { return <Kiosk />; }
+import { Kiosk } from "@/app/_components/kiosk";
+export default function Home() {
+  return <Kiosk />;
+}

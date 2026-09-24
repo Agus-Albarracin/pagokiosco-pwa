@@ -3,7 +3,45 @@
 MVP de inventario y punto de venta para microcomercios. PWA mobile-first en español,
 con datos locales y registro de ventas en pesos argentinos. No procesa pagos.
 
-## Ejecutar
+## Arquitectura
+
+El código se organiza por funcionalidades en `features/catalogo`,
+`features/inventario`, `features/venta` y `features/caja`. Cada carpeta reúne
+sus componentes, estado y operaciones. Por ejemplo, el Context del carrito vive
+en `features/venta/cart-context.tsx`.
+
+`app` compone las vistas y la navegación. `entities` define productos y ventas;
+`infrastructure` mantiene la conexión a IndexedDB; `shared` contiene UI y utilidades
+comunes. Las funcionalidades se comunican por props y callbacks desde aplicación,
+sin importarse entre sí. ESLint comprueba estos límites también para rutas relativas.
+
+La distribución, APIs públicas y decisiones están documentadas en
+[FEATURE-ARCH-TARGET.md](docs/architecture/FEATURE-ARCH-TARGET.md).
+Las pruebas de lógica viven junto a su módulo; las de persistencia entre módulos
+en `tests/integration`, y las de navegador en `tests/e2e`.
+
+## Formato del código fuente
+
+Usamos Prettier para JavaScript, TypeScript, React/JSX, CSS, JSON y Markdown.
+La sangría es de dos espacios y el ancho objetivo es de 100 caracteres.
+En JSX se separan los atributos; en CSS se separan las declaraciones y Stylelint
+exige una línea en blanco entre reglas. Las expresiones simples pueden seguir
+en una línea cuando el formateador las considere legibles.
+
+```powershell
+npm run format
+npm run format:check
+```
+
+`format` corrige el código y `format:check` verifica sin modificar archivos.
+Los archivos generados y las skills externas están excluidos de Prettier.
+Instalá las extensiones recomendadas de VS Code para formatear al guardar
+y aplicar la separación de reglas CSS. Los comandos funcionan sin el editor.
+`npm ci` prepara el hook de Husky: antes de cada commit, lint-staged formatea
+solo los archivos preparados. CI verifica formato, lint, tipos y tests.
+Los cambios masivos de formato deben mantenerse separados de cambios funcionales.
+
+## Ejecutar la aplicación
 
 Requiere Node.js 20.9 o posterior y npm. Probado con Node.js 20.19.6.
 
@@ -95,7 +133,7 @@ Playwright inicia y cierra su propio servidor en el puerto 3107. Verifica escrit
 y Pixel 7 emulado. Las pruebas cubren cálculos, concurrencia, rollback,
 persistencia, búsqueda local por marca y nombre, POS, offline, instalación,
 reposición y navegación táctil. La prueba de gesto se omite en escritorio.
-El estado de las verificaciones actuales está en [Venta por peso](docs/VENTA-POR-PESO.md).
+El estado de las verificaciones actuales está en [Cobertura y verificación](docs/VERIFICACION.md).
 Las capturas y trazas quedan en
 `test-results/` y no se versionan.
 
@@ -103,11 +141,11 @@ Las capturas y trazas quedan en
 
 - [Reglas de negocio vigentes](AGENTS.md)
 - [Búsqueda local: implementación, comprobaciones y entrega](docs/BUSQUEDA-LOCAL.md)
-- [Bitácora histórica de implementación](docs/IMPLEMENTACION.md)
+- [Venta por peso y merma](docs/VENTA-POR-PESO.md)
+- [Arquitectura por funcionalidades](docs/architecture/FEATURE-ARCH-TARGET.md)
+- [Cobertura y verificación](docs/VERIFICACION.md)
 
-La rama de esta modificación es `feat/venta-por-peso`, sobre
-`feat/busqueda-marca-producto` (`9e2600c`). Las guías anteriores del scanner describen
-funciones retiradas y no son instrucciones de uso de la versión actual.
+Documentación histórica de la etapa inicial: [bitácora](docs/IMPLEMENTACION.md).
 
 ## Venta por peso
 

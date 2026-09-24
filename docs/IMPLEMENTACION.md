@@ -14,12 +14,12 @@ los productos pesables se registran mediante importe libre.
 Referencias PLAN son propuestas locales para GitHub Projects, no issues publicados.
 Base inicial: `master` en `084bb25`. No hay remoto configurado.
 
-| Ítem | Rama | Base | Aceptación |
-|---|---|---|---|
-| PLAN-01 | feat/inventario-local | master (084bb25) | precios, alta/edición, stock incremental y persistencia |
-| PLAN-02 | feat/consulta-ean | feat/inventario-local | proxy mínimo y cámara EAN-8/EAN-13 |
-| PLAN-03 | feat/venta-caja | feat/consulta-ean | carrito, venta atómica y resumen por período |
-| PLAN-04 | feat/pwa-offline | feat/venta-caja | instalación, operación offline y guía verificable |
+| Ítem    | Rama                  | Base                  | Aceptación                                              |
+| ------- | --------------------- | --------------------- | ------------------------------------------------------- |
+| PLAN-01 | feat/inventario-local | master (084bb25)      | precios, alta/edición, stock incremental y persistencia |
+| PLAN-02 | feat/consulta-ean     | feat/inventario-local | proxy mínimo y cámara EAN-8/EAN-13                      |
+| PLAN-03 | feat/venta-caja       | feat/consulta-ean     | carrito, venta atómica y resumen por período            |
+| PLAN-04 | feat/pwa-offline      | feat/venta-caja       | instalación, operación offline y guía verificable       |
 
 Cada base dependiente incorpora funcionalidades utilizadas por el siguiente paso.
 Los cambios previos del usuario en AGENTS.md y .agents/ se preservan sin incluirlos.
@@ -95,6 +95,7 @@ Pruebas: venta concurrente, reintento, rollback, precio cambiado y totales por m
 ## PLAN-04 · PWA offline
 
 Base: `feat/venta-caja` en `b49d816`.
+
 - Manifest fullscreen/portrait con colores requeridos e iconos PNG reproducibles.
 - `prebuild` genera iconos; `postbuild` enumera los chunks reales, incluyendo ZXing.
 - Service worker Cache-First guarda shell y assets de la misma versión de build.

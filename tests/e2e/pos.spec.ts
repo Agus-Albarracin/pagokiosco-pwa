@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
-test.beforeEach(async ({ page }) => { await page.addInitScript(() => sessionStorage.setItem("pagokiosco.install-dismissed", "1")); });
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem("pagokiosco.install-dismissed", "1"));
+});
 test("inventario, venta, importe libre y cierre persisten", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Agregar stock", exact: true }).click();
@@ -12,6 +14,12 @@ test("inventario, venta, importe libre y cierre persisten", async ({ page }, tes
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: "Vender", exact: true }).click();
   await page.getByRole("button", { name: /Alfajor de chocolate/ }).click();
+  for (const section of ["Catálogo", "Agregar stock", "Caja"]) {
+    await page.getByRole("button", { name: section, exact: true }).click();
+    await page.getByRole("button", { name: "Vender", exact: true }).click();
+    await expect(page.locator(".cart-lines")).toContainText("Alfajor de chocolate");
+    await expect(page.getByRole("button", { name: "Registrar venta" })).toBeEnabled();
+  }
   await page.screenshot({ path: `test-results/pos-${testInfo.project.name}.png`, fullPage: true });
   await page.getByRole("button", { name: "Registrar venta" }).click();
   await page.getByRole("button", { name: "Confirmar y descontar stock" }).click();
@@ -33,7 +41,9 @@ test("inventario, venta, importe libre y cierre persisten", async ({ page }, tes
   await page.getByRole("button", { name: "Listo", exact: true }).click();
   await page.getByRole("combobox").selectOption("365");
   await expect(page.locator(".metrics-summary")).toContainText("1.650");
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > window.innerWidth,
+  );
   expect(overflow).toBe(false);
 });
 test("alta local no requiere código y permite cerrar el diálogo", async ({ page }) => {

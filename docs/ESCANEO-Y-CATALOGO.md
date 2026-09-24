@@ -65,9 +65,9 @@ git -C "C:\Users\Agust\Desktop\pagokiosco" push -u origin feat/alta-por-escaneo
 git -C "C:\Users\Agust\Desktop\pagokiosco" push -u origin feat/catalogo-agregar-stock
 ```
 
-| Rama | Base del PR | Título propuesto |
-| --- | --- | --- |
-| `feat/alta-por-escaneo` | `main` | Alta y reposición de productos por escaneo |
+| Rama                          | Base del PR             | Título propuesto                                           |
+| ----------------------------- | ----------------------- | ---------------------------------------------------------- |
+| `feat/alta-por-escaneo`       | `main`                  | Alta y reposición de productos por escaneo                 |
 | `feat/catalogo-agregar-stock` | `feat/alta-por-escaneo` | Separar Catálogo y Agregar stock con navegación deslizable |
 
 El segundo PR puede revisarse con esa base para ver solo su cambio. Después de
