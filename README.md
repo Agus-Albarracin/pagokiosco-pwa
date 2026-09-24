@@ -20,6 +20,8 @@ npm run format:check
 Los archivos generados y las skills externas están excluidos de Prettier.
 Instalá las extensiones recomendadas de VS Code para formatear al guardar
 y aplicar la separación de reglas CSS. Los comandos funcionan sin el editor.
+`npm ci` prepara el hook de Husky: antes de cada commit, lint-staged formatea
+solo los archivos preparados. CI verifica formato, lint, tipos y tests.
 Los cambios masivos de formato deben mantenerse separados de cambios funcionales.
 
 ## Ejecutar

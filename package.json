@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prepare": "husky",
     "format": "stylelint \"app/**/*.css\" --fix && prettier --write .",
     "format:check": "prettier --check . && stylelint \"app/**/*.css\"",
     "lint:fix": "eslint --fix",
