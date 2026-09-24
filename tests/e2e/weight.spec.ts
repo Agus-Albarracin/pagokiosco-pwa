@@ -1,6 +1,9 @@
 import { test, expect } from "@playwright/test";
 
-test("fiambre: kilos, gramos exactos, edición, reposición y merma sin ingresos", async ({ page, context }, testInfo) => {
+test("fiambre: kilos, gramos exactos, edición, reposición y merma sin ingresos", async ({
+  page,
+  context,
+}, testInfo) => {
   await page.addInitScript(() => sessionStorage.setItem("pagokiosco.install-dismissed", "1"));
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "Principal" });
@@ -25,7 +28,10 @@ test("fiambre: kilos, gramos exactos, edición, reposición y merma sin ingresos
   await page.getByLabel("Peso exacto (g)").fill("9000");
   await expect(page.getByRole("button", { name: "Confirmar peso" })).toBeDisabled();
   await page.getByLabel("Peso exacto (g)").fill("235");
-  await page.screenshot({ path: `test-results/weight-picker-${testInfo.project.name}.png`, fullPage: true });
+  await page.screenshot({
+    path: `test-results/weight-picker-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
   await page.getByRole("button", { name: "Confirmar peso" }).click();
   await expect(page.locator(".cart-lines")).toContainText("235 g");
   await expect(page.locator(".cart-total")).toContainText("2.350");
@@ -51,7 +57,10 @@ test("fiambre: kilos, gramos exactos, edición, reposición y merma sin ingresos
   await page.getByRole("button", { name: "Confirmar merma" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.locator(".product-row")).toContainText("9 kg");
-  await page.screenshot({ path: `test-results/weight-stock-${testInfo.project.name}.png`, fullPage: true });
+  await page.screenshot({
+    path: `test-results/weight-stock-${testInfo.project.name}.png`,
+    fullPage: true,
+  });
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   await context.setOffline(false);
   await page.reload();

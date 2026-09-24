@@ -7,7 +7,11 @@ test("beforeinstallprompt abre el aviso y ejecuta la instalación", async ({ pag
     sessionStorage.removeItem("pagokiosco.install-dismissed");
     const event = new Event("beforeinstallprompt", { cancelable: true });
     Object.defineProperties(event, {
-      prompt: { value: async () => { document.documentElement.dataset.installCalled = "yes"; } },
+      prompt: {
+        value: async () => {
+          document.documentElement.dataset.installCalled = "yes";
+        },
+      },
       userChoice: { value: Promise.resolve({ outcome: "accepted" }) },
     });
     window.dispatchEvent(event);
@@ -60,7 +64,10 @@ test("buscar y cambiar de sección no solicita cámara ni catálogo externo", as
     };
   });
   const lookups: string[] = [];
-  page.on("request", request => { if (request.url().includes("/api/products") || request.url().includes("openfoodfacts")) lookups.push(request.url()); });
+  page.on("request", (request) => {
+    if (request.url().includes("/api/products") || request.url().includes("openfoodfacts"))
+      lookups.push(request.url());
+  });
   await page.goto("/");
   await page.getByLabel("Buscar para vender", { exact: true }).fill("galletitas");
   await page.getByRole("button", { name: "Catálogo", exact: true }).click();
@@ -82,11 +89,17 @@ test("ofrece instalación y la suprime en modo standalone", async ({ page }) => 
   await expect(page.getByRole("button", { name: "Instalar app", exact: true })).toHaveCount(0);
   await page.addInitScript(() => {
     const original = window.matchMedia.bind(window);
-    window.matchMedia = query => { const result = original(query); if (query.includes("display-mode")) Object.defineProperty(result, "matches", { value: true }); return result; };
+    window.matchMedia = (query) => {
+      const result = original(query);
+      if (query.includes("display-mode")) Object.defineProperty(result, "matches", { value: true });
+      return result;
+    };
   });
   await page.reload();
   await expect(page.getByLabel("Buscar para vender", { exact: true })).toBeEnabled();
-  await page.evaluate(() => window.dispatchEvent(new Event("beforeinstallprompt", { cancelable: true })));
+  await page.evaluate(() =>
+    window.dispatchEvent(new Event("beforeinstallprompt", { cancelable: true })),
+  );
   await expect(page.getByRole("button", { name: "Instalar app", exact: true })).toHaveCount(0);
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });

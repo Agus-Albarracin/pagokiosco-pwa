@@ -10,5 +10,12 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = { themeColor: "#1a365d", width: "device-width", initialScale: 1 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="es-AR"><body>{children}<Pwa /></body></html>;
+  return (
+    <html lang="es-AR">
+      <body>
+        {children}
+        <Pwa />
+      </body>
+    </html>
+  );
 }

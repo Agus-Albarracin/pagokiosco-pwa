@@ -5,7 +5,15 @@ import { addStock } from "../lib/stock";
 import { listProducts, saveProduct } from "../lib/storage";
 
 test("reposición concurrente conserva el precio actualizado y no duplica el catálogo", async () => {
-  const product = { ean: "7798113302458", nombre: "Manaos", costo: 100, margen: 50, precioVenta: 150, stock: 0, updatedAt: "" };
+  const product = {
+    ean: "7798113302458",
+    nombre: "Manaos",
+    costo: 100,
+    margen: 50,
+    precioVenta: 150,
+    stock: 0,
+    updatedAt: "",
+  };
   await saveProduct(product, false, 5);
   await saveProduct({ ...product, precioVenta: 200, margen: 100 }, true, 0);
   await Promise.all([addStock(product.ean, 2), addStock(product.ean, 3)]);

@@ -6,7 +6,16 @@ import { addStock } from "../lib/stock";
 import { IDBFactory } from "fake-indexeddb";
 import type { Product } from "../lib/domain";
 
-const original: Product = { ean: "SKU-cafe", nombre: "Café molido 250 g", marca: "Águila", costo: 100, margen: 40, precioVenta: 150, stock: 0, updatedAt: "" };
+const original: Product = {
+  ean: "SKU-cafe",
+  nombre: "Café molido 250 g",
+  marca: "Águila",
+  costo: 100,
+  margen: 40,
+  precioVenta: 150,
+  stock: 0,
+  updatedAt: "",
+};
 
 test("busca por marca y producto con palabras parciales, tildes y orden libre", () => {
   const legacy = { ...original, ean: "7798113302458", nombre: "Manaos pomelo", marca: undefined };

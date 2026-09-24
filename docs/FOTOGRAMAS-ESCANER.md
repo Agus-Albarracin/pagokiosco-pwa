@@ -20,12 +20,12 @@ El parámetro `300` del antiguo `BrowserMultiFormatReader` regulaba la espera de
 
 `lib/scan-quality-feedback.ts` evalúa como máximo dos veces por segundo, después de un intento fallido. Exige tres muestras consecutivas del mismo estado antes de cambiar la indicación. Mantiene los contadores fuera del estado de React y solo actualiza el mensaje cuando cambia de forma estable.
 
-| Condición aproximada | Indicación |
-| --- | --- |
-| Al menos 90% de píxeles con luminancia ≤30 y promedio <35 | Buscá más luz para ver el código. |
-| Al menos 90% de píxeles con luminancia ≥240 y promedio >235 | Incliná el envase o buscá menos reflejo. |
-| Desvío de luminancia <12 y gradiente medio <3 | Mostrá las barras y mantené el celular quieto. |
-| Recuperación durante tres muestras | Apuntá al código EAN de 8 o 13 dígitos. |
+| Condición aproximada                                        | Indicación                                     |
+| ----------------------------------------------------------- | ---------------------------------------------- |
+| Al menos 90% de píxeles con luminancia ≤30 y promedio <35   | Buscá más luz para ver el código.              |
+| Al menos 90% de píxeles con luminancia ≥240 y promedio >235 | Incliná el envase o buscá menos reflejo.       |
+| Desvío de luminancia <12 y gradiente medio <3               | Mostrá las barras y mantené el celular quieto. |
+| Recuperación durante tres muestras                          | Apuntá al código EAN de 8 o 13 dígitos.        |
 
 Son heurísticas conservadoras, no un diagnóstico de autofocus. Poco detalle puede significar una superficie lisa, distancia o desenfoque; no se puede distinguir con certeza usando estas métricas. Los umbrales necesitan validación física y las métricas globales pueden omitir problemas locales sobre el código.
 
