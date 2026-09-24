@@ -1,5 +1,14 @@
 # Technical Business Rules Spec: PagoKiosco PWA (v2.2)
 
+## Organización por funcionalidades
+
+- Seguir `docs/architecture/FEATURE-ARCH-TARGET.md` para rutas, propietarios y dependencias.
+- Las funcionalidades son `catalogo`, `inventario`, `venta` y `caja`. Mantener componentes, contextos y lógica junto a su funcionalidad.
+- `app` compone APIs públicas de funcionalidades; no importar archivos internos ni importar una funcionalidad desde otra.
+- Reservar `entities` para contratos del negocio, `infrastructure` para IndexedDB y `shared` para primitivas comunes. No subir lógica de negocio a `shared`.
+- Mantener el Provider del carrito estable al cambiar de vista; preservar transacciones atómicas e identificadores de IndexedDB.
+- Usar `npm run lint` para comprobar límites de imports y `npm test` para lógica e integración. Los tests de integración pueden acceder a servicios internos; el código de producción no.
+
 ## Formato y legibilidad del código fuente
 
 - Priorizar la lectura humana sobre reducir la cantidad de líneas en todo el código fuente.

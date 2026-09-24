@@ -19,7 +19,7 @@ Repositorio: `pagokiosco-pwa`. Rama: `feat/busqueda-marca-producto`. Base: `perf
 
 ## Implementación
 
-1. `lib/domain.ts`, `lib/storage.ts` y `lib/product-search.ts`: marca opcional, persistencia compatible y búsqueda compartida. La reposición y las ventas conservan marca e identificador. Una edición antigua que omita la marca no la borra.
+1. `entities/product`, `features/inventario/save-product.ts` e `infrastructure/indexeddb.ts`: marca opcional, persistencia compatible y búsqueda compartida. La reposición y las ventas conservan marca e identificador. Una edición antigua que omita la marca no la borra.
 2. Componentes de venta, catálogo, stock y formulario: búsqueda como entrada principal, marca visible y alta sin código. Se eliminan los accesos a cámara y la consulta de nombres remotos.
 3. Se retiran módulos, dependencia, estilos y pruebas exclusivos del scanner/proxy. Las pruebas de caja, stock, persistencia, instalación y operación offline se adaptan al flujo escrito.
 4. `AGENTS.md` pasa a v2.1 y README documenta el flujo vigente. Las reglas locales de negocio que ya estaban en AGENTS.md se conservan, actualizando identificación y catálogo; el resto del contrato financiero y offline permanece vigente.

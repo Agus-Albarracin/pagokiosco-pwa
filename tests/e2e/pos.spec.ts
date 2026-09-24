@@ -14,6 +14,12 @@ test("inventario, venta, importe libre y cierre persisten", async ({ page }, tes
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: "Vender", exact: true }).click();
   await page.getByRole("button", { name: /Alfajor de chocolate/ }).click();
+  for (const section of ["Catálogo", "Agregar stock", "Caja"]) {
+    await page.getByRole("button", { name: section, exact: true }).click();
+    await page.getByRole("button", { name: "Vender", exact: true }).click();
+    await expect(page.locator(".cart-lines")).toContainText("Alfajor de chocolate");
+    await expect(page.getByRole("button", { name: "Registrar venta" })).toBeEnabled();
+  }
   await page.screenshot({ path: `test-results/pos-${testInfo.project.name}.png`, fullPage: true });
   await page.getByRole("button", { name: "Registrar venta" }).click();
   await page.getByRole("button", { name: "Confirmar y descontar stock" }).click();

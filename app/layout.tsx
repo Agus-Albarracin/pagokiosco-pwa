@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Pwa } from "@/components/pwa";
+import { Pwa } from "@/app/_components/pwa";
 export const metadata: Metadata = {
   title: "PagoKiosco · Tu negocio, al día",
   description: "Inventario y registro de ventas para tu kiosco, incluso sin conexión.",
