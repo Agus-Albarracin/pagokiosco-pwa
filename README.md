@@ -3,6 +3,25 @@
 MVP de inventario y punto de venta para microcomercios. PWA mobile-first en español,
 con datos locales y registro de ventas en pesos argentinos. No procesa pagos.
 
+## Formato del código fuente
+
+Usamos Prettier para JavaScript, TypeScript, React/JSX, CSS, JSON y Markdown.
+La sangría es de dos espacios y el ancho objetivo es de 100 caracteres.
+En JSX se separan los atributos; en CSS se separan las declaraciones y Stylelint
+exige una línea en blanco entre reglas. Las expresiones simples pueden seguir
+en una línea cuando el formateador las considere legibles.
+
+```powershell
+npm run format
+npm run format:check
+```
+
+`format` corrige el código y `format:check` verifica sin modificar archivos.
+Los archivos generados y las skills externas están excluidos de Prettier.
+Instalá las extensiones recomendadas de VS Code para formatear al guardar
+y aplicar la separación de reglas CSS. Los comandos funcionan sin el editor.
+Los cambios masivos de formato deben mantenerse separados de cambios funcionales.
+
 ## Ejecutar
 
 Requiere Node.js 20.9 o posterior y npm. Probado con Node.js 20.19.6.

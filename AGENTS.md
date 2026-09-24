@@ -1,5 +1,14 @@
 # Technical Business Rules Spec: PagoKiosco PWA (v2.2)
 
+## Formato y legibilidad del código fuente
+
+- Priorizar la lectura humana sobre reducir la cantidad de líneas en todo el código fuente.
+- Respetar `.prettierrc.json` y `.editorconfig`; no compactar manualmente componentes, funciones o bloques.
+- Usar Prettier para React/JSX, TypeScript, JavaScript, CSS y documentación. Mantener expresiones simples breves cuando el formateador lo permita.
+- En CSS, usar una declaración por línea y una línea en blanco entre reglas; Stylelint verifica la separación.
+- Ejecutar `npm run format` y `npm run format:check` antes de entregar cambios. No modificar archivos generados ni skills externas para corregir su formato.
+- Separar reformateos masivos de cambios de comportamiento. Las convenciones de arquitectura de cada framework complementan estas reglas, sin duplicar el formato.
+
 ## Contexto del Sistema
 * **Proyecto:** PagoKiosco - PWA Mobile-First para gestión de inventario y punto de venta (POS) en microcomercios.
 * **Módulo:** Catálogo local con búsqueda por nombre y marca, Local First Storage, Event-Driven POS Workflow, Metriquiado y PWA Web App Manifest.

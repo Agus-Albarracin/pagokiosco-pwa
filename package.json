@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "format": "stylelint \"app/**/*.css\" --fix && prettier --write .",
+    "format:check": "prettier --check . && stylelint \"app/**/*.css\"",
+    "lint:fix": "eslint --fix",
     "prebuild": "node scripts/generate-icons.mjs",
     "dev": "next dev",
     "build": "next build",
@@ -26,7 +29,12 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "eslint-config-prettier": "10.1.8",
     "fake-indexeddb": "^6.2.5",
+    "husky": "9.1.7",
+    "lint-staged": "16.4.0",
+    "prettier": "3.9.9",
+    "stylelint": "17.15.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
     "typescript": "^5"
